@@ -1,0 +1,18 @@
+[
+  {
+    "modid": "${id}",
+    "name": "${name}",
+    "description": "A fully customizable Crosshair Mod, allowing for a more precise PvP experience.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "W-OVERFLOW", "nxtdaydelivery"
+    ],
+    "credits": "nxtdaydelivery",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
