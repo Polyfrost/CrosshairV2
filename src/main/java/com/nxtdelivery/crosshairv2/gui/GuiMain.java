@@ -183,6 +183,9 @@ public class GuiMain {
         if (currentBottom < top) currentBottom = top;
         if (currentRight > right) currentRight = right;
         Gui.drawRect(left, top, currentRight, currentBottom, baseColor);
+        if(!Mouse.isButtonDown(0) && bar.isClicked()) {     // fix to stop it 'sticking'
+            bar.setClicked(false);
+        }
         if (percentOpenMain > 0.95f) {
             bar.draw(left, top);
             fr.drawStringWithShadow("CrosshairV2", left + 17, top + 4, -1);
@@ -271,6 +274,7 @@ public class GuiMain {
                 goal = 1.18f;
                 Gui.drawRect(left + 317, top + btnY, left + 459, top + btnY + 15, 2015042331);
                 Iterator<Button> itr = customButtonsList.iterator();
+                Gui.drawRect(left + 117, top + 142, left + 132, top + 157, 452984831);      // tint the middle one
                 for (int i = 0; i < 15; i++) {
                     for (int i1 = 0; i1 < 15; i1++) {
                         Button btn = itr.next();

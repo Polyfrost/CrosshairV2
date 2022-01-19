@@ -35,7 +35,7 @@ public class Crosshairs {
     }
 
     public static void render() {
-        if (resolution == null) resolution = new ScaledResolution(mc);
+        resolution = new ScaledResolution(mc);
         width = resolution.getScaledWidth();
         height = resolution.getScaledHeight();
         renderCrosshair(GuiMain.selectedCrosshair);
