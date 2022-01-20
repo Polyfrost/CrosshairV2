@@ -30,6 +30,8 @@ public class Button {
     private int padX = 1;
     private int texX;
     private int texY;
+    private int hitBoxX = 0;
+    private int hitBoxY = 0;
     private String tooltip;
     private int target = 110;
     private int wrapWidth;
@@ -213,7 +215,7 @@ public class Button {
     public void update() {
         int mouseX = Mouse.getX() / resolution.getScaleFactor();
         int mouseY = Math.abs((Mouse.getY() / resolution.getScaleFactor()) - resolution.getScaledHeight());
-        hovered = mouseX > buttonLeft && mouseY > buttonTop && mouseX < buttonRight && mouseY < buttonBottom;
+        hovered = mouseX > buttonLeft - hitBoxX && mouseY > buttonTop - hitBoxY && mouseX < buttonRight + hitBoxX && mouseY < buttonBottom + hitBoxY;
         if (hovered) {
             if (Mouse.isButtonDown(0) && !clicked) {            // convert into just one poll on press
                 toggled = !toggled;
@@ -232,7 +234,7 @@ public class Button {
         if (hoverFx) {
             percentComplete = clamp(easeOut(percentComplete, hovered ? 1f : 0f));
             Gui.drawRect(buttonLeft, buttonTop, buttonRight, buttonBottom, new Color(70, 70, 70, (int) (percentComplete * target)).getRGB());
-            if (percentComplete == 1f && tooltip != null) {
+            if (percentComplete == 1f && tooltip != null && !clicked) {
                 if (fr.splitStringWidth(tooltip, wrapWidth) == 9) wrapWidth = fr.getStringWidth(tooltip) + 3;
                 Gui.drawRect(mouseX, mouseY, mouseX + wrapWidth + 2, mouseY + fr.splitStringWidth(tooltip, wrapWidth), buttonColor);
                 fr.drawSplitString(tooltip, mouseX + 3, mouseY + 2, wrapWidth, -1);
@@ -365,6 +367,17 @@ public class Button {
     public void setXYPadding(int padX, int padY) {
         this.padY = padY;
         this.padX = padX;
+    }
+
+    /**
+     * Add invisible padding to the hit box of the button, allowing for it to be clicked easier.
+     *
+     * @param padX pixels on X axis to add
+     * @param padY pixels on Y axis to add
+     */
+    public void setInvisibleHitBox(int padX, int padY) {
+        this.hitBoxX = padX;
+        this.hitBoxY = padY;
     }
 
     /**

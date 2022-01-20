@@ -2,6 +2,8 @@ package com.nxtdelivery.crosshairv2.command;
 
 
 import com.nxtdelivery.crosshairv2.CrosshairV2;
+import com.nxtdelivery.crosshairv2.gui.BackgroundScreen;
+import gg.essential.api.EssentialAPI;
 import gg.essential.api.commands.Command;
 import gg.essential.api.commands.DefaultHandler;
 
@@ -13,5 +15,6 @@ public class CrosshairCommand extends Command {
     @DefaultHandler
     public void handle() {
         CrosshairV2.guiOpen = true;
+        EssentialAPI.getGuiUtil().openScreen(new BackgroundScreen());
     }
 }

@@ -45,6 +45,7 @@ public class Slider {
         this.current = defaultNum;
         this.progress = (int) ((current / max) * length);
         main = new Button("", false, true);
+        main.setInvisibleHitBox(2, 2);
         main.setXYPadding(0, 0);
     }
 

@@ -29,14 +29,13 @@ public class GuiMain {
     private static final FontRenderer fr = mc.fontRendererObj;
     private float percentOpenMain = 0f;
     private float percentOpenSecond = 0f;
-    private boolean retract = false;
+    public static boolean retract = false;
     private int left;
     private int right;
     private int top;
     private int currentBottom;
     private int selectedPreview = CrosshairConfig.preview;
     private static int crosshairType = 1;
-    private static int scale = 4;
     private static int currentColor = 2;
     public static int selectedCrosshair = CrosshairConfig.crosshair;
     private static float goal = 1f;
@@ -58,14 +57,13 @@ public class GuiMain {
     private final Button scene2Btn = new Button(scene2Loc, scene2Loc, false, 0, 0, 768, 256);
     private final Button scene3Btn = new Button(scene3Loc, scene3Loc, false, 0, 0, 768, 256);
     private final Button scene4Btn = new Button(scene4Loc, scene4Loc, false, 0, 0, 768, 256);
-    private final Button smallScaleBtn = new Button("Small", true, true);
-    private final Button normalScaleBtn = new Button("Normal", true, true);
-    private final Button largeScaleBtn = new Button("Large", true, true);
-    private final Button autoScaleBtn = new Button("Auto", true, true);
+    private final Button renderOnGuisBtn = new Button("Render in GUIs", true, true);
+    private final Button renderInF5Btn = new Button("Render in F5 Mode", true, true);
     private final Button showModUpdates = new Button("Show Mod Updates", true, true);
     private final Button updateNow = new Button("Update Now", false, true);
     public final Button debugBtn = new Button("Debug Mode", true, true);
     public final Button chromaBtn = new Button("Chroma", true, true);
+    public final Button modBtn = new Button("CrosshairV2", true, true);
     private final Button presetBtn = new Button(btnLoc, btnLoc, true, 0, 0, 142, 15);
     private final Button simpleBtn = new Button(btnLoc, btnLoc, true, 0, 0, 142, 15);
     private final Button customBtn = new Button(btnLoc, btnLoc, true, 0, 0, 142, 15);
@@ -87,6 +85,7 @@ public class GuiMain {
     public final Slider secondLengthSlider = new Slider(0f, 15f, 100, CrosshairConfig.secondLineLength, true, new Color(0, 158, 72, 220).getRGB(), new Color(0, 158, 72, 255).getRGB());
     public final Slider multiplierSlider = new Slider(1f, 5f, 100, CrosshairConfig.multiplier, true, new Color(0, 158, 72, 220).getRGB(), new Color(0, 158, 72, 255).getRGB());
     public final Slider secondGapSlider = new Slider(0f, 25f, 100, CrosshairConfig.secondGap, true, new Color(0, 158, 72, 220).getRGB(), new Color(0, 158, 72, 255).getRGB());
+    public final Slider scaleSlider = new Slider(0f, 5f, 100, 1f, false, new Color(0, 158, 72, 220).getRGB(), new Color(0, 158, 72, 255).getRGB());
     private final List<Button> presetButtonList = new ArrayList<>();
     private final List<Button> customButtonsList = new ArrayList<>();
 
@@ -102,10 +101,9 @@ public class GuiMain {
         CustomCrosshair.read(customButtonsList);
         colorSelector.setTooltip("Change the color of your crosshair.");
         closeButton.setTooltip("Close the GUI.", 100);
-        smallScaleBtn.setTooltip("Render the crosshair with an individual GUI scale of Small.", 120);
-        normalScaleBtn.setTooltip("Render the crosshair with an individual GUI scale of Normal.", 120);
-        largeScaleBtn.setTooltip("Render the crosshair with an individual GUI scale of Large.", 120);
-        autoScaleBtn.setTooltip("Render the crosshair with your current GUI scale.", 120);
+        renderOnGuisBtn.setTooltip("Render the crosshair when GUIs are open.", 200);
+        renderInF5Btn.setTooltip("Render the crosshair when in Third Person mode.", 200);
+        scaleSlider.setTooltip("Set a custom scale for the crosshair, allowing it to appear bigger or smaller.", 200);
         presetBtn.setTooltip("Choose your crosshair from a variety of presets.", 300);
         simpleBtn.setTooltip("Create a simple crosshair with FPS-game style options.", 300);
         customBtn.setTooltip("Create a fully custom crosshair by drawing your own.", 300);
@@ -116,34 +114,23 @@ public class GuiMain {
         movementBtn.setTooltip("Dynamically move crosshair when running/walking.", 200);
         infoBtn.setTooltip("About CrosshairV2 and mod settings", 200);
         showModUpdates.setTooltip("Show a notification when you start Minecraft informing you of new updates.", 150);
-        updateNow.setTooltip("Update by clicking the button.", 150);
+        updateNow.setTooltip("Update now by clicking the button.", 150);
         debugBtn.setTooltip("Enable debugging information.", 150);
+        modBtn.setTooltip("Enable/Disable the mod.", 150);
         clearCrossBtn.setBackgroundColor(new Color(16, 16, 16, 255).getRGB());
         saveCrossBtn.setBackgroundColor(new Color(16, 16, 16, 255).getRGB());
         chromaBtn.setClickToggle(CrosshairConfig.chroma);
         aimBtn.setClickToggle(CrosshairConfig.dynamicAiming);
         movementBtn.setClickToggle(CrosshairConfig.dynamicMovement);
         showModUpdates.setClickToggle(CrosshairConfig.showUpdate);
+        modBtn.setClickToggle(CrosshairConfig.enabled);
+        renderOnGuisBtn.setClickToggle(CrosshairConfig.renderOnGuis);
+        renderInF5Btn.setClickToggle(CrosshairConfig.renderInF5);
         infoBtn.setClickToggle(false);
         bar.doClickEffects(false);
         bar.enableClickPersistence(true);
         crosshairType = CrosshairConfig.crosshairType;
         currentColor = CrosshairConfig.colorType;
-        switch (CrosshairConfig.scale) {
-            case 0:
-                smallScaleBtn.setClickToggle(true);
-                break;
-            case 1:
-                normalScaleBtn.setClickToggle(true);
-                break;
-            case 2:
-                largeScaleBtn.setClickToggle(true);
-                break;
-            default:
-            case 3:
-                autoScaleBtn.setClickToggle(true);
-                break;
-        }
         register();
     }
 
@@ -170,7 +157,7 @@ public class GuiMain {
         int winHeight = 265;
         if (left == 0 && right == 0) {
             left = (width / 2) - (winWidth / 2);
-            top = height / 3;
+            top = height / 2 - winHeight / 2;
         }
         right = left + winWidth;
         int bottom = top + winHeight;
@@ -183,24 +170,35 @@ public class GuiMain {
         if (currentBottom < top) currentBottom = top;
         if (currentRight > right) currentRight = right;
         Gui.drawRect(left, top, currentRight, currentBottom, baseColor);
-        if(!Mouse.isButtonDown(0) && bar.isClicked()) {     // fix to stop it 'sticking'
+        if (!Mouse.isButtonDown(0) && bar.isClicked()) {     // fix to stop it 'sticking'
             bar.setClicked(false);
+        }
+        if (retract && percentOpenMain == 0f) {
+            writeValuesAndClose();
         }
         if (percentOpenMain > 0.95f) {
             bar.draw(left, top);
-            fr.drawStringWithShadow("CrosshairV2", left + 17, top + 4, -1);
+            modBtn.draw(left + 17, top + 2);
             if (bar.isClicked()) {
                 left += Mouse.getDX() / resolution.getScaleFactor();
                 top -= Mouse.getDY() / resolution.getScaleFactor();
             }
+            if (!modBtn.isToggled()) {
+                closeButton.draw(left + 3, top + 3);
+                if (closeButton.isClicked()) retract = true;
+                renderInfoSystem();
+                fr.drawStringWithShadow("^ Click me to enable!", left + 20, top + 17, -1);
+                return;
+            }
             int btnY = 165;
             if (crosshairType == 2) btnY = 20;
-            simpleBtn.draw(left + 12, top + btnY);
-            presetBtn.draw(left + 165, top + btnY);
-            customBtn.draw(left + 317, top + btnY);
             fr.drawStringWithShadow("Simple", left + 12 + (142 / 2 - fr.getStringWidth("Simple") / 2), top + btnY + 3, -1);
             fr.drawStringWithShadow("Presets", left + 165 + (142 / 2 - fr.getStringWidth("Presets") / 2), top + btnY + 3, -1);
             fr.drawStringWithShadow("Custom", left + 317 + (142 / 2 - fr.getStringWidth("Custom") / 2), top + btnY + 3, -1);
+            if (crosshairType != 2) renderPreview();
+            simpleBtn.draw(left + 12, top + btnY);
+            presetBtn.draw(left + 165, top + btnY);
+            customBtn.draw(left + 317, top + btnY);
             if (simpleBtn.isClicked()) {
                 crosshairType = 0;
                 presetBtn.setClickToggle(false);
@@ -224,7 +222,6 @@ public class GuiMain {
 
             if (crosshairType == 1) {
                 goal = 1f;
-                renderPreview();
                 Gui.drawRect(left + 165, top + 165, left + 307, top + 180, 2015042331);
                 int i = 0;
                 for (Button btn : presetButtonList) {
@@ -246,7 +243,6 @@ public class GuiMain {
             }
             if (crosshairType == 0) {
                 Gui.drawRect(left + 12, top + 165, left + 154, top + 180, 2015042331);
-                renderPreview();
                 goal = 1.18f;
                 movementBtn.draw(left + 320, top + 269);
                 aimBtn.draw(left + 320, top + 255);
@@ -283,11 +279,11 @@ public class GuiMain {
                 }
                 fr.drawStringWithShadow("Custom Crosshair Creator", left + 246, top + 50, -603939256);
                 Gui.drawRect(left + 246, top + 66, left + 501, top + 130, -15724528);
-                fr.drawSplitString("- Click on a square to add color.", left + 250, top + 70,250, -1);
-                fr.drawSplitString("- Click the same square again to remove it.", left + 250, top + 80, 250,-1);
-                fr.drawSplitString("- You can click and drag to set multiple at once.", left + 250, top + 90, 250,-1);
-                fr.drawSplitString("- Change the color in Color Options (below).", left + 250, top + 100, 250,-1);
-                fr.drawSplitString("- Make sure to press 'Save Crosshair' when you are done.", left + 250, top + 110, 250,-1);
+                fr.drawSplitString("- Click on a square to add color.", left + 250, top + 70, 250, -1);
+                fr.drawSplitString("- Click the same square again to remove it.", left + 250, top + 80, 250, -1);
+                fr.drawSplitString("- You can click and drag to set multiple at once.", left + 250, top + 90, 250, -1);
+                fr.drawSplitString("- Change the color in Color Options (below).", left + 250, top + 100, 250, -1);
+                fr.drawSplitString("- Make sure to press 'Save Crosshair' when you are done.", left + 250, top + 110, 250, -1);
                 saveCrossBtn.draw(left + 250, top + 150);
                 clearCrossBtn.draw(left + 370, top + 150);
                 if (saveCrossBtn.isClicked()) {
@@ -299,7 +295,7 @@ public class GuiMain {
             }
 
             renderColorOpts();
-            renderCustomScaleOpts();
+            renderOtherOpts();
             renderInfoSystem();
             closeButton.draw(left + 3, top + 3);            // this is at the bottom as we always want to make sure we can press it
             if (debugBtn.isToggled()) {
@@ -309,16 +305,6 @@ public class GuiMain {
         }
         if (closeButton.isClicked()) {
             retract = true;
-        }
-        if (retract && percentOpenMain == 0f) {
-            CrosshairV2.guiOpen = false;
-            left = 0;
-            right = 0;
-            retract = false;
-            infoBtn.setClickToggle(false);
-            closeButton.setClicked(false);
-            bar.setClicked(false);
-            writeValues();
         }
     }
 
@@ -465,46 +451,33 @@ public class GuiMain {
         Crosshairs.renderCrosshair(selectedCrosshair, left + 237, top + 91);
     }
 
-    private void renderCustomScaleOpts() {
-        fr.drawStringWithShadow("Custom Scale (Broken)", right - 123, currentBottom - 65, -1);
+    private void renderOtherOpts() {
         Gui.drawRect(right - 126, currentBottom - 67, right - 127, currentBottom - 4, -938208236);
         Gui.drawRect(right - 125, currentBottom - 70, right - 4, currentBottom - 69, -938208236);
-        smallScaleBtn.draw(right - 121, currentBottom - 55);
-        normalScaleBtn.draw(right - 121, currentBottom - 42);
-        largeScaleBtn.draw(right - 121, currentBottom - 29);
-        autoScaleBtn.draw(right - 121, currentBottom - 16);
-        if (smallScaleBtn.isClicked()) {        // TODO make this do something
-            scale = 0;
-            normalScaleBtn.setClickToggle(false);
-            largeScaleBtn.setClickToggle(false);
-            autoScaleBtn.setClickToggle(false);
+        int buffer = 50;
+        if (crosshairType != 0) {
+            fr.drawStringWithShadow("Custom Scale (Alpha)", right - 123, currentBottom - 65, -1);
+            scaleSlider.draw(right - 116, currentBottom - 53);
+            scaleSlider.showCurrent(true);
+            fr.drawStringWithShadow("0", right - 124, currentBottom - 53, -1);
+            fr.drawStringWithShadow("5x", right - 13, currentBottom - 53, -1);
+            buffer = 15;
         }
-        if (normalScaleBtn.isClicked()) {
-            scale = 1;
-            smallScaleBtn.setClickToggle(false);
-            largeScaleBtn.setClickToggle(false);
-            autoScaleBtn.setClickToggle(false);
-        }
-        if (largeScaleBtn.isClicked()) {
-            scale = 2;
-            normalScaleBtn.setClickToggle(false);
-            smallScaleBtn.setClickToggle(false);
-            autoScaleBtn.setClickToggle(false);
-        }
-        if (autoScaleBtn.isClicked()) {
-            scale = 3;
-            normalScaleBtn.setClickToggle(false);
-            largeScaleBtn.setClickToggle(false);
-            smallScaleBtn.setClickToggle(false);
-        }
-        if (CrosshairConfig.scale != scale) {
-            CrosshairConfig.scale = scale;
-            CrosshairV2.config.markDirty();
-            CrosshairV2.config.writeData();
-        }
+        renderOnGuisBtn.draw(right - 124, currentBottom - buffer);
+        renderInF5Btn.draw(right - 124, currentBottom - buffer - 15);
+
+
     }
 
-    public void writeValues() {
+    public void writeValuesAndClose() {
+        mc.displayGuiScreen(null);
+        CrosshairV2.guiOpen = false;
+        left = 0;
+        right = 0;
+        retract = false;
+        infoBtn.setClickToggle(false);
+        closeButton.setClicked(false);
+        bar.setClicked(false);
         if (colorSelector.getSelectedItem() == 1) {
             switch (currentColor) {
                 case 2:
@@ -520,6 +493,10 @@ public class GuiMain {
         } else {
             CrosshairConfig.color = new Color(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), alphaSlider.getValue());
         }
+        CrosshairConfig.enabled = modBtn.isToggled();
+        CrosshairConfig.renderOnGuis = renderOnGuisBtn.isToggled();
+        CrosshairConfig.renderInF5 = renderInF5Btn.isToggled();
+        CrosshairConfig.scale = scaleSlider.getValue();
         CrosshairConfig.thickness = (int) thickSlider.getValue();
         CrosshairConfig.dotSize = (int) dotSlider.getValue();
         CrosshairConfig.gap = (int) gapSlider.getValue();

@@ -21,6 +21,7 @@ public class CrosshairV2 {
     public static File jarFile;
     public static final File modDir = new File(new File(Minecraft.getMinecraft().mcDataDir, "W-OVERFLOW"), NAME);
     public static CrosshairConfig config;
+    private final Minecraft mc = Minecraft.getMinecraft();
     public static GuiMain gui;
     public static boolean guiOpen = false;
 
@@ -43,6 +44,10 @@ public class CrosshairV2 {
     @SubscribeEvent
     public void onRenderEvent(RenderGameOverlayEvent event) {
         if (event.type == RenderGameOverlayEvent.ElementType.CROSSHAIRS) {
+            if ((!CrosshairConfig.renderInF5 && mc.gameSettings.thirdPersonView != 0) || (!CrosshairConfig.renderOnGuis && mc.currentScreen != null)) {
+                event.setCanceled(true);
+                return;
+            }
             Crosshairs.render();
             event.setCanceled(true);
         }

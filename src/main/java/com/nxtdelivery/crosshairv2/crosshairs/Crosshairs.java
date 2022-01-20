@@ -19,11 +19,11 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 
 
-@SuppressWarnings("unused")
 public class Crosshairs {
     public static final ResourceLocation crossLoc = new ResourceLocation(CrosshairV2.ID, "textures/crosshairs.png");
-    public static Minecraft mc = Minecraft.getMinecraft();
+    public static final Minecraft mc = Minecraft.getMinecraft();
     public static ScaledResolution resolution;
+    private static float scale = 1f;
     private static float percentDone = 1f;
     public static int width;
     public static int height;
@@ -38,7 +38,9 @@ public class Crosshairs {
         resolution = new ScaledResolution(mc);
         width = resolution.getScaledWidth();
         height = resolution.getScaledHeight();
-        renderCrosshair(GuiMain.selectedCrosshair);
+        if (CrosshairConfig.enabled) {
+            renderCrosshair(GuiMain.selectedCrosshair);
+        } else renderVanilla();
     }
 
     public static void renderVanilla() {
@@ -52,7 +54,10 @@ public class Crosshairs {
     }
 
     public static void renderCrosshair(int number) {
+        scale = CrosshairV2.gui.scaleSlider.getValue();
+        GlStateManager.pushMatrix();
         GlStateManager.enableAlpha();
+        GlStateManager.scale(scale, scale, scale);
         mc.getTextureManager().bindTexture(crossLoc);
         if (CrosshairConfig.colorType == 0) {
             GlStateManager.color(CrosshairV2.gui.redSlider.getValue(), CrosshairV2.gui.greenSlider.getValue(), CrosshairV2.gui.blueSlider.getValue(), CrosshairV2.gui.alphaSlider.getValue());
@@ -68,11 +73,11 @@ public class Crosshairs {
             GlStateManager.enableAlpha();
         }
         if (CrosshairConfig.crosshairType == 1) {
-            Gui.drawModalRectWithCustomSizedTexture(width / 2 - 7, height / 2 - 7, (number * 16), 0, 16, 16, 224, 16);
+            Gui.drawModalRectWithCustomSizedTexture(descaleNum(width / 2 - 7), descaleNum(height / 2 - 7), (number * 16), 0, 16, 16, 224, 16);
         }
         if (CrosshairConfig.crosshairType == 2) {
             mc.getTextureManager().bindTexture(CustomCrosshair.customLoc);
-            Gui.drawModalRectWithCustomSizedTexture(width / 2 - 6, height / 2 - 6, 0, 0, 15, 15, 15, 15);
+            Gui.drawModalRectWithCustomSizedTexture(descaleNum(width / 2 - 6), descaleNum(height / 2 - 6), 0, 0, 15, 15, 15, 15);
         }
         if (CrosshairConfig.colorType == 2) {
             GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
@@ -109,20 +114,22 @@ public class Crosshairs {
                         if (mc.thePlayer.getItemInUse().getItem() instanceof ItemBow) {
                             ItemStack bow = mc.thePlayer.getItemInUse();
                             int useTime = mc.thePlayer.getItemInUseCount();
-                            bowExtension = (bow.getItem().getMaxItemUseDuration(bow) - useTime) / 20.0f;
-                            if (useTime == 0 || bowExtension > 1.0f) {
-                                bowExtension = 1f;
+                            bowExtension = 1f - (bow.getItem().getMaxItemUseDuration(bow) - useTime) / 20.0f;
+                            if (useTime == 0 || bowExtension < 0f) {
+                                bowExtension = 0f;
                             }
                         }
                     }
                     if (mc.thePlayer.getHeldItem().getItem() instanceof ItemBow) {
-                        if (bowExtension == 0f) percentDone = CrosshairConfig.multiplier * 2;
-                        percentDone = easeOut(percentDone, CrosshairConfig.multiplier * 2 - (bowExtension * CrosshairConfig.multiplier));
+                        if (bowExtension == 0.95f) percentDone = CrosshairConfig.multiplier * 2;
+                        percentDone = easeOut(percentDone, (CrosshairConfig.multiplier * 2) * bowExtension);
                     }
                 } else if (!CrosshairConfig.dynamicMovement) easeOut(percentDone, 1f);
             }
             if (percentDone < 0.8f) percentDone = 0.8f;
         }
+        GlStateManager.popMatrix();
+        GlStateManager.color(1f, 1f, 1f, 1f);
     }
 
     public static void renderCrosshair(int number, int x, int y) {
@@ -188,5 +195,9 @@ public class Crosshairs {
         } else {
             return goal;
         }
+    }
+
+    private static int descaleNum(int num) {
+        return Math.round(num / scale);
     }
 }

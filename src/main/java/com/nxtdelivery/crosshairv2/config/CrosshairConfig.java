@@ -14,6 +14,13 @@ import java.io.File;
 public class CrosshairConfig extends Vigilant {
 
     @Property(
+            name = "enabled", category = "h",
+            type = PropertyType.SWITCH,
+            hidden = true
+    )
+    public static boolean enabled = true;
+
+    @Property(
             name = "preview", category = "h",
             type = PropertyType.NUMBER,
             hidden = true
@@ -36,10 +43,10 @@ public class CrosshairConfig extends Vigilant {
 
     @Property(
             name = "scale", category = "h",
-            type = PropertyType.NUMBER,
+            type = PropertyType.DECIMAL_SLIDER,
             hidden = true
     )
-    public static int scale = 3;
+    public static float scale = 1f;
 
     @Property(
             name = "crosshairType", category = "h",
@@ -118,6 +125,20 @@ public class CrosshairConfig extends Vigilant {
             hidden = true
     )
     public static boolean dynamicAiming = true;
+
+    @Property(
+            name = "renderInF5", category = "h",
+            type = PropertyType.SWITCH,
+            hidden = true
+    )
+    public static boolean renderInF5 = true;
+
+    @Property(
+            name = "renderInGUIs", category = "h",
+            type = PropertyType.SWITCH,
+            hidden = true
+    )
+    public static boolean renderOnGuis = true;
 
     @Property(
             name = "chroma", category = "h",
