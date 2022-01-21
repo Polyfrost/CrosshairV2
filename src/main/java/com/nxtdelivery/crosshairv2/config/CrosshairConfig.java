@@ -157,10 +157,24 @@ public class CrosshairConfig extends Vigilant {
 
     @Property(
             type = PropertyType.COLOR,
-            name = "colorEntity", category = "h",
+            name = "colorEntityHostile", category = "h",
             hidden = true
     )
-    public static Color colorEntity = new Color(1f, 0f, 0f, 1f);
+    public static Color colorEntityHostile = new Color(1f, 0f, 0f, 1f);
+
+    @Property(
+            type = PropertyType.COLOR,
+            name = "colorEntityFriend", category = "h",
+            hidden = true
+    )
+    public static Color colorEntityFriend = new Color(1f, 0.5f, 0f, 1f);
+
+    @Property(
+            type = PropertyType.COLOR,
+            name = "colorContainer", category = "h",
+            hidden = true
+    )
+    public static Color colorContainer = new Color(0f, 0f, 0.6f, 1f);
 
     @Property(
             type = PropertyType.COLOR,

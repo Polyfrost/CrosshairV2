@@ -12,6 +12,8 @@ import org.lwjgl.input.Mouse;
 
 import java.awt.*;
 
+import static com.nxtdelivery.crosshairv2.crosshairs.Crosshairs.resolution;
+
 /**
  * Button API with support for custom textures, and checkbox-style GUI elements with text.
  * Part of my unreleased GUI library I have done some work on, quickGUI.
@@ -22,7 +24,6 @@ import java.awt.*;
 public class Button {
     private static final Minecraft mc = Minecraft.getMinecraft();
     private static final FontRenderer fr = mc.fontRendererObj;
-    protected static ScaledResolution resolution;
     private String text;
     private final boolean hoverFx;
     private boolean clickFx = true;
@@ -51,7 +52,7 @@ public class Button {
     private int buttonLeft, buttonRight, buttonBottom, buttonTop;
     private int bgColor = new Color(0, 0, 0, 0).getRGB();
     private final int baseColor = new Color(16, 16, 16, 255).getRGB();
-    private final int selectedColor = new Color(40, 40, 47, 255).getRGB();
+    private final int selectedColor = new Color(0, 158, 72, 255).getRGB();
     private final int buttonColor = new Color(16, 16, 16, 170).getRGB();
 
     /**
@@ -234,11 +235,6 @@ public class Button {
         if (hoverFx) {
             percentComplete = clamp(easeOut(percentComplete, hovered ? 1f : 0f));
             Gui.drawRect(buttonLeft, buttonTop, buttonRight, buttonBottom, new Color(70, 70, 70, (int) (percentComplete * target)).getRGB());
-            if (percentComplete == 1f && tooltip != null && !clicked) {
-                if (fr.splitStringWidth(tooltip, wrapWidth) == 9) wrapWidth = fr.getStringWidth(tooltip) + 3;
-                Gui.drawRect(mouseX, mouseY, mouseX + wrapWidth + 2, mouseY + fr.splitStringWidth(tooltip, wrapWidth), buttonColor);
-                fr.drawSplitString(tooltip, mouseX + 3, mouseY + 2, wrapWidth, -1);
-            }
         }
         if (clicked && hovered && clickFx) {
             Gui.drawRect(buttonLeft, buttonTop, buttonRight, buttonBottom, new Color(70, 70, 70, target + 10).getRGB());
@@ -250,6 +246,11 @@ public class Button {
             GlStateManager.color(1f, 1f, 1f, 1f);
             mc.getTextureManager().bindTexture(btnOn);
             Gui.drawModalRectWithCustomSizedTexture(buttonLeft + padX, buttonTop + padY, 0, 0, texX, texY, texX, texY);
+        }
+        if (percentComplete == 1f && tooltip != null && !clicked && hoverFx) {
+            if (fr.splitStringWidth(tooltip, wrapWidth) == 9) wrapWidth = fr.getStringWidth(tooltip) + 3;
+            Gui.drawRect(mouseX, mouseY, mouseX + wrapWidth + 2, mouseY + fr.splitStringWidth(tooltip, wrapWidth), buttonColor);
+            fr.drawSplitString(tooltip, mouseX + 3, mouseY + 2, wrapWidth, -1);
         }
     }
 

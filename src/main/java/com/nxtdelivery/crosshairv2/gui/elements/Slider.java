@@ -23,6 +23,7 @@ public class Slider {
     private final int baseColor = new Color(16, 16, 16, 200).getRGB();
     private final Button main;
     private float current;
+    private boolean hovered;
 
     /**
      * Create a new slider.
@@ -57,6 +58,10 @@ public class Slider {
      */
     public void draw(int x, int y) {
         Gui.drawRect(x, y, x + length, y + 7, baseColor);
+        int mouseX = Mouse.getX() / resolution.getScaleFactor();
+        int mouseY = Math.abs((Mouse.getY() / resolution.getScaleFactor()) - resolution.getScaledHeight());
+        hovered = mouseX > x && mouseX < x + length && mouseY > y && mouseY < y + 7;
+
         Gui.drawRect(x + 1, y + 1, x + progress, y + 6, color);
         if (showNums) {
             fr.drawStringWithShadow(String.valueOf(min), x - fr.getStringWidth(String.valueOf(min)) - 1, y, -1);
@@ -67,18 +72,24 @@ public class Slider {
         }
         Gui.drawRect(x + progress - 2, y - 1, x + progress + 6, y + 8, colorHead);
         main.draw(x + progress - 2, y - 1, x + progress + 6, y + 8);
-        if (main.isClicked()) {
-            int mouseX = Mouse.getX() / resolution.getScaleFactor();
-            if (main.isHovered()) {
-                progress = Math.abs(x - mouseX);
-            }
-        }
+
+        if (hovered && Mouse.isButtonDown(0) || main.isClicked()) progress = Math.abs(x - mouseX);
+
         if (progress > length) progress = length;
         try {
             current = ((float) progress / (float) length) * max;
         } catch (Exception e) {
             current = 0f;
         }
+    }
+
+    /**
+     * Return weather or not the Slider is currently hovered.
+     *
+     * @return boolean hover state
+     */
+    public boolean isHovered() {
+        return hovered;
     }
 
     /**
@@ -142,15 +153,6 @@ public class Slider {
      */
     public boolean isClicked() {
         return main.isClicked();
-    }
-
-    /**
-     * Return weather or not the head of the progress bar is currently hovered.
-     *
-     * @return head hover state
-     */
-    public boolean isHovered() {
-        return main.isHovered();
     }
 
     /**

@@ -21,11 +21,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static com.nxtdelivery.crosshairv2.crosshairs.Crosshairs.resolution;
+
 
 @SuppressWarnings("IntegerDivisionInFloatingPointContext")
 public class GuiMain {
     private static final Minecraft mc = Minecraft.getMinecraft();
-    private static ScaledResolution resolution;
     private static final FontRenderer fr = mc.fontRendererObj;
     private float percentOpenMain = 0f;
     private float percentOpenSecond = 0f;
@@ -36,11 +37,11 @@ public class GuiMain {
     private int currentBottom;
     private int selectedPreview = CrosshairConfig.preview;
     private static int crosshairType = 1;
-    private static int currentColor = 2;
+    private static int currentColor = 4;
     public static int selectedCrosshair = CrosshairConfig.crosshair;
     private static float goal = 1f;
     private final ResourceLocation barLoc = new ResourceLocation(CrosshairV2.ID, "textures/bar.png");
-    private final ResourceLocation arrowLoc = new ResourceLocation(CrosshairV2.ID, "textures/arrow.png");
+    private final ResourceLocation closeLoc = new ResourceLocation(CrosshairV2.ID, "textures/close.png");
     private final ResourceLocation scene1Loc = new ResourceLocation(CrosshairV2.ID, "textures/scene1.png");
     private final ResourceLocation scene2Loc = new ResourceLocation(CrosshairV2.ID, "textures/scene2.png");
     private final ResourceLocation scene3Loc = new ResourceLocation(CrosshairV2.ID, "textures/scene3.png");
@@ -49,9 +50,13 @@ public class GuiMain {
     private final ResourceLocation btnLoc = new ResourceLocation(CrosshairV2.ID, "textures/button.png");
     private final ResourceLocation infoLoc = new ResourceLocation(CrosshairV2.ID, "textures/infobtn.png");
     private final ResourceLocation crosshairFrameLoc = new ResourceLocation(CrosshairV2.ID, "textures/crosshairframe.png");
-    private final int baseColor = new Color(27, 27, 27, 255).getRGB();
-    private final Button closeButton = new Button(arrowLoc, arrowLoc, true, 3, 3, 9, 9);
-    private final Button infoBtn = new Button(infoLoc, infoLoc, true, 3, 3, 9, 9);
+    private final Color baseColor = new Color(27, 27, 27, 255);
+    private final Color baseColorDark = new Color(16, 16, 16, 255);
+    private final Color baseColorTransparent = new Color(20, 20, 20, 200);
+    private final Color accentColor = new Color(0, 158, 72, 255);
+    private final Color accentColorTransparent = new Color(0, 158, 72, 220);
+    private final Button closeButton = new Button(closeLoc, closeLoc, true, 3, 3, 9, 9);
+    private final Button infoBtn = new Button(infoLoc, closeLoc, true, 3, 3, 9, 9);
     private final Button bar = new Button(barLoc, barLoc, false, 0, 0, 600, 15);
     private final Button scene1Btn = new Button(scene1Loc, scene1Loc, false, 0, 0, 768, 256);
     private final Button scene2Btn = new Button(scene2Loc, scene2Loc, false, 0, 0, 768, 256);
@@ -72,20 +77,20 @@ public class GuiMain {
     private final Button movementBtn = new Button("Dynamic Movement", true, true);
     private final Button aimBtn = new Button("Dynamic Aim", true, true);
     private final Selector colorSelector = new Selector(new String[]{"Basic", "Dynamic", "Vanilla Blending"}, CrosshairConfig.colorType);
-    private final Selector dynamicColorSelector = new Selector(new String[]{"Player", "Entity", "None/Other"}, 2);
+    private final Selector dynamicColorSelector = new Selector(new String[]{"Player", "Monster", "Animal", "Container", "None/Other"}, 4);
     public final Slider redSlider = new Slider(0f, 1f, 50, CrosshairConfig.color.getRed() / 255f, false, new Color(200, 0, 0, 230).getRGB(), new Color(170, 0, 20, 255).getRGB());
     public final Slider blueSlider = new Slider(0f, 1f, 50, CrosshairConfig.color.getBlue() / 255f, false, new Color(0, 0, 200, 230).getRGB(), new Color(20, 0, 170, 255).getRGB());
     public final Slider greenSlider = new Slider(0f, 1f, 50, CrosshairConfig.color.getGreen() / 255f, false, new Color(0, 200, 0, 230).getRGB(), new Color(0, 170, 20, 255).getRGB());
     public final Slider alphaSlider = new Slider(0f, 1f, 50, CrosshairConfig.color.getAlpha() / 255f, false, new Color(255, 255, 255, 230).getRGB(), new Color(220, 220, 220, 255).getRGB());
-    public final Slider thickSlider = new Slider(0f, 5f, 130, CrosshairConfig.thickness, true, new Color(0, 158, 72, 220).getRGB(), new Color(0, 158, 72, 255).getRGB());
-    public final Slider gapSlider = new Slider(0f, 10f, 130, CrosshairConfig.gap, true, new Color(0, 158, 72, 220).getRGB(), new Color(0, 158, 72, 255).getRGB());
-    public final Slider lengthSlider = new Slider(0f, 20f, 130, CrosshairConfig.lineLength, true, new Color(0, 158, 72, 220).getRGB(), new Color(0, 158, 72, 255).getRGB());
-    public final Slider dotSlider = new Slider(0f, 5f, 130, CrosshairConfig.dotSize, true, new Color(0, 158, 72, 220).getRGB(), new Color(0, 158, 72, 255).getRGB());
-    public final Slider chromaSpeedSlider = new Slider(1f, 67f, 120, CrosshairConfig.chromaSpeed, false, new Color(0, 158, 72, 220).getRGB(), new Color(0, 158, 72, 255).getRGB());
-    public final Slider secondLengthSlider = new Slider(0f, 15f, 100, CrosshairConfig.secondLineLength, true, new Color(0, 158, 72, 220).getRGB(), new Color(0, 158, 72, 255).getRGB());
-    public final Slider multiplierSlider = new Slider(1f, 5f, 100, CrosshairConfig.multiplier, true, new Color(0, 158, 72, 220).getRGB(), new Color(0, 158, 72, 255).getRGB());
-    public final Slider secondGapSlider = new Slider(0f, 25f, 100, CrosshairConfig.secondGap, true, new Color(0, 158, 72, 220).getRGB(), new Color(0, 158, 72, 255).getRGB());
-    public final Slider scaleSlider = new Slider(0f, 5f, 100, 1f, false, new Color(0, 158, 72, 220).getRGB(), new Color(0, 158, 72, 255).getRGB());
+    public final Slider thickSlider = new Slider(0f, 5f, 130, CrosshairConfig.thickness, true, accentColorTransparent.getRGB(), accentColor.getRGB());
+    public final Slider gapSlider = new Slider(0f, 10f, 130, CrosshairConfig.gap, true, accentColorTransparent.getRGB(), accentColor.getRGB());
+    public final Slider lengthSlider = new Slider(0f, 20f, 130, CrosshairConfig.lineLength, true, accentColorTransparent.getRGB(), accentColor.getRGB());
+    public final Slider dotSlider = new Slider(0f, 5f, 130, CrosshairConfig.dotSize, true, accentColorTransparent.getRGB(), accentColor.getRGB());
+    public final Slider chromaSpeedSlider = new Slider(1f, 67f, 120, CrosshairConfig.chromaSpeed, false, accentColorTransparent.getRGB(), accentColor.getRGB());
+    public final Slider secondLengthSlider = new Slider(0f, 15f, 100, CrosshairConfig.secondLineLength, true, accentColorTransparent.getRGB(), accentColor.getRGB());
+    public final Slider multiplierSlider = new Slider(1f, 5f, 100, CrosshairConfig.multiplier, true, accentColorTransparent.getRGB(), accentColor.getRGB());
+    public final Slider secondGapSlider = new Slider(0f, 25f, 100, CrosshairConfig.secondGap, true, accentColorTransparent.getRGB(), accentColor.getRGB());
+    public final Slider scaleSlider = new Slider(0f, 5f, 100, 1f, false, accentColorTransparent.getRGB(), accentColor.getRGB());
     private final List<Button> presetButtonList = new ArrayList<>();
     private final List<Button> customButtonsList = new ArrayList<>();
 
@@ -117,8 +122,8 @@ public class GuiMain {
         updateNow.setTooltip("Update now by clicking the button.", 150);
         debugBtn.setTooltip("Enable debugging information.", 150);
         modBtn.setTooltip("Enable/Disable the mod.", 150);
-        clearCrossBtn.setBackgroundColor(new Color(16, 16, 16, 255).getRGB());
-        saveCrossBtn.setBackgroundColor(new Color(16, 16, 16, 255).getRGB());
+        clearCrossBtn.setBackgroundColor(baseColorDark.getRGB());
+        saveCrossBtn.setBackgroundColor(baseColorDark.getRGB());
         chromaBtn.setClickToggle(CrosshairConfig.chroma);
         aimBtn.setClickToggle(CrosshairConfig.dynamicAiming);
         movementBtn.setClickToggle(CrosshairConfig.dynamicMovement);
@@ -169,7 +174,7 @@ public class GuiMain {
         if (currentRight < left) currentRight = left;
         if (currentBottom < top) currentBottom = top;
         if (currentRight > right) currentRight = right;
-        Gui.drawRect(left, top, currentRight, currentBottom, baseColor);
+        Gui.drawRect(left, top, currentRight, currentBottom, baseColor.getRGB());
         if (!Mouse.isButtonDown(0) && bar.isClicked()) {     // fix to stop it 'sticking'
             bar.setClicked(false);
         }
@@ -177,6 +182,8 @@ public class GuiMain {
             writeValuesAndClose();
         }
         if (percentOpenMain > 0.95f) {
+            renderColorOpts();
+            renderOtherOpts();
             bar.draw(left, top);
             modBtn.draw(left + 17, top + 2);
             if (bar.isClicked()) {
@@ -196,9 +203,10 @@ public class GuiMain {
             fr.drawStringWithShadow("Presets", left + 165 + (142 / 2 - fr.getStringWidth("Presets") / 2), top + btnY + 3, -1);
             fr.drawStringWithShadow("Custom", left + 317 + (142 / 2 - fr.getStringWidth("Custom") / 2), top + btnY + 3, -1);
             if (crosshairType != 2) renderPreview();
+            Gui.drawRect(left + 12 + (153 * crosshairType), top + btnY, left + 12 + (153 * crosshairType) + 142, top + btnY + 15, -937747685);     // 27, 27, 27, 200
             simpleBtn.draw(left + 12, top + btnY);
             presetBtn.draw(left + 165, top + btnY);
-            customBtn.draw(left + 317, top + btnY);
+            customBtn.draw(left + 318, top + btnY);
             if (simpleBtn.isClicked()) {
                 crosshairType = 0;
                 presetBtn.setClickToggle(false);
@@ -222,7 +230,6 @@ public class GuiMain {
 
             if (crosshairType == 1) {
                 goal = 1f;
-                Gui.drawRect(left + 165, top + 165, left + 307, top + 180, 2015042331);
                 int i = 0;
                 for (Button btn : presetButtonList) {
                     btn.draw(left + 20 + (i * 23), top + 190);
@@ -242,7 +249,6 @@ public class GuiMain {
                 }
             }
             if (crosshairType == 0) {
-                Gui.drawRect(left + 12, top + 165, left + 154, top + 180, 2015042331);
                 goal = 1.18f;
                 movementBtn.draw(left + 320, top + 269);
                 aimBtn.draw(left + 320, top + 255);
@@ -263,12 +269,11 @@ public class GuiMain {
                 gapSlider.draw(left + 90, top + 230);
                 fr.drawStringWithShadow("Dot Size", left + 30, top + 250, -1);
                 dotSlider.draw(left + 90, top + 250);
-                Gui.drawRect(left + 312, top + 170, left + 313, currentBottom - 50, -938208236);
+                Gui.drawRect(left + 312, top + 170, left + 313, currentBottom - 50, baseColorTransparent.getRGB());
             }
 
             if (crosshairType == 2) {
                 goal = 1.18f;
-                Gui.drawRect(left + 317, top + btnY, left + 459, top + btnY + 15, 2015042331);
                 Iterator<Button> itr = customButtonsList.iterator();
                 Gui.drawRect(left + 117, top + 142, left + 132, top + 157, 452984831);      // tint the middle one
                 for (int i = 0; i < 15; i++) {
@@ -277,8 +282,8 @@ public class GuiMain {
                         btn.draw(left + 12 + (i * 15), top + 37 + (i1 * 15));
                     }
                 }
-                fr.drawStringWithShadow("Custom Crosshair Creator", left + 246, top + 50, -603939256);
-                Gui.drawRect(left + 246, top + 66, left + 501, top + 130, -15724528);
+                fr.drawStringWithShadow("Custom Crosshair Creator", left + 246, top + 50, accentColorTransparent.getRGB());
+                Gui.drawRect(left + 246, top + 66, left + 501, top + 130, baseColorDark.getRGB());
                 fr.drawSplitString("- Click on a square to add color.", left + 250, top + 70, 250, -1);
                 fr.drawSplitString("- Click the same square again to remove it.", left + 250, top + 80, 250, -1);
                 fr.drawSplitString("- You can click and drag to set multiple at once.", left + 250, top + 90, 250, -1);
@@ -294,8 +299,6 @@ public class GuiMain {
                 }
             }
 
-            renderColorOpts();
-            renderOtherOpts();
             renderInfoSystem();
             closeButton.draw(left + 3, top + 3);            // this is at the bottom as we always want to make sure we can press it
             if (debugBtn.isToggled()) {
@@ -314,11 +317,11 @@ public class GuiMain {
         if (percentOpenSecond != 0f) {
             int currentRight = (int) (200 * percentOpenSecond);
             int currentTop = (int) (60 * percentOpenSecond);
-            Gui.drawRect(right - currentRight, top - currentTop, right, top, baseColor);
+            Gui.drawRect(right - currentRight, top - currentTop, right, top, baseColor.getRGB());
         }
         if (percentOpenSecond > 0.98f) {
             fr.drawStringWithShadow("CrosshairV2 by W-OVERFLOW", right - 195, top - 56, -1);
-            Gui.drawRect(right - 198, top - 44, right - 2, top - 45, -603939256);
+            Gui.drawRect(right - 198, top - 44, right - 2, top - 45, accentColorTransparent.getRGB());
             updateNow.draw(right - 70, top - 38);
             debugBtn.draw(right - 195, top - 13);
             showModUpdates.draw(right - 195, top - 38);
@@ -331,8 +334,8 @@ public class GuiMain {
 
     private void renderColorOpts() {
         fr.drawStringWithShadow("Color Options", left + 24, currentBottom - 50, -1);
-        Gui.drawRect(left + 12, currentBottom - 45, left + 22, currentBottom - 46, -603939256);
-        Gui.drawRect(left + 94, currentBottom - 45, right - 132, currentBottom - 46, -603939256);
+        Gui.drawRect(left + 12, currentBottom - 45, left + 22, currentBottom - 46, accentColorTransparent.getRGB());
+        Gui.drawRect(left + 94, currentBottom - 45, right - 132, currentBottom - 46, accentColorTransparent.getRGB());
         if (colorSelector.getSelectedItem() == 1) {
             dynamicColorSelector.draw(left + 12, currentBottom - 22);
         }
@@ -340,7 +343,7 @@ public class GuiMain {
             chromaBtn.draw(left + 12, currentBottom - 22);
         } else chromaBtn.setClickToggle(false);
         colorSelector.draw(left + 12, currentBottom - 38);
-        Gui.drawRect(right - 169, currentBottom - 42, right - 132, currentBottom - 5, -15724528);
+        Gui.drawRect(right - 169, currentBottom - 42, right - 132, currentBottom - 5, baseColorDark.getRGB());
         if (colorSelector.getSelectedItem() != 2 && !chromaBtn.isToggled()) {
             fr.drawStringWithShadow("Red", left + 112, currentBottom - 35, Color.RED.getRGB());
             redSlider.draw(left + 110, currentBottom - 25);
@@ -353,34 +356,35 @@ public class GuiMain {
         }
         if (colorSelector.getSelectedItem() == 1) {
             if (dynamicColorSelector.getSelectedItem() != currentColor) {
-                switch (currentColor) {
-                    default:
-                    case 2:
-                        CrosshairConfig.color = new Color(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), alphaSlider.getValue());
-                        break;
-                    case 1:
-                        CrosshairConfig.colorEntity = new Color(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), alphaSlider.getValue());
-                        break;
-                    case 0:
-                        CrosshairConfig.colorPlayer = new Color(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), alphaSlider.getValue());
-                        break;
-                }
+                colorSaveSwitcher();
                 CrosshairV2.config.markDirty();
                 CrosshairV2.config.writeData();
 
                 switch (dynamicColorSelector.getSelectedItem()) {
-                    case 2:
+                    case 4:
                     default:
                         redSlider.setValue(CrosshairConfig.color.getRed() / 255f);
                         blueSlider.setValue(CrosshairConfig.color.getBlue() / 255f);
                         greenSlider.setValue(CrosshairConfig.color.getGreen() / 255f);
                         alphaSlider.setValue(CrosshairConfig.color.getAlpha() / 255f);
                         break;
+                    case 3:
+                        redSlider.setValue(CrosshairConfig.colorContainer.getRed() / 255f);
+                        blueSlider.setValue(CrosshairConfig.colorContainer.getBlue() / 255f);
+                        greenSlider.setValue(CrosshairConfig.colorContainer.getGreen() / 255f);
+                        alphaSlider.setValue(CrosshairConfig.colorContainer.getAlpha() / 255f);
+                        break;
+                    case 2:
+                        redSlider.setValue(CrosshairConfig.colorEntityFriend.getRed() / 255f);
+                        blueSlider.setValue(CrosshairConfig.colorEntityFriend.getBlue() / 255f);
+                        greenSlider.setValue(CrosshairConfig.colorEntityFriend.getGreen() / 255f);
+                        alphaSlider.setValue(CrosshairConfig.colorEntityFriend.getAlpha() / 255f);
+                        break;
                     case 1:
-                        redSlider.setValue(CrosshairConfig.colorEntity.getRed() / 255f);
-                        blueSlider.setValue(CrosshairConfig.colorEntity.getBlue() / 255f);
-                        greenSlider.setValue(CrosshairConfig.colorEntity.getGreen() / 255f);
-                        alphaSlider.setValue(CrosshairConfig.colorEntity.getAlpha() / 255f);
+                        redSlider.setValue(CrosshairConfig.colorEntityHostile.getRed() / 255f);
+                        blueSlider.setValue(CrosshairConfig.colorEntityHostile.getBlue() / 255f);
+                        greenSlider.setValue(CrosshairConfig.colorEntityHostile.getGreen() / 255f);
+                        alphaSlider.setValue(CrosshairConfig.colorEntityHostile.getAlpha() / 255f);
                         break;
                     case 0:
                         redSlider.setValue(CrosshairConfig.colorPlayer.getRed() / 255f);
@@ -452,8 +456,8 @@ public class GuiMain {
     }
 
     private void renderOtherOpts() {
-        Gui.drawRect(right - 126, currentBottom - 67, right - 127, currentBottom - 4, -938208236);
-        Gui.drawRect(right - 125, currentBottom - 70, right - 4, currentBottom - 69, -938208236);
+        Gui.drawRect(right - 126, currentBottom - 67, right - 127, currentBottom - 4, baseColorTransparent.getRGB());
+        Gui.drawRect(right - 125, currentBottom - 70, right - 4, currentBottom - 69, baseColorTransparent.getRGB());
         int buffer = 50;
         if (crosshairType != 0) {
             fr.drawStringWithShadow("Custom Scale (Alpha)", right - 123, currentBottom - 65, -1);
@@ -469,6 +473,30 @@ public class GuiMain {
 
     }
 
+    /**
+     * Switch the dynamic color for saving to the config file
+     */
+    public void colorSaveSwitcher() {
+        switch (currentColor) {
+            default:
+            case 4:
+                CrosshairConfig.color = new Color(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), alphaSlider.getValue());
+                break;
+            case 3:
+                CrosshairConfig.colorContainer = new Color(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), alphaSlider.getValue());
+                break;
+            case 2:
+                CrosshairConfig.colorEntityFriend = new Color(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), alphaSlider.getValue());
+                break;
+            case 1:
+                CrosshairConfig.colorEntityHostile = new Color(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), alphaSlider.getValue());
+                break;
+            case 0:
+                CrosshairConfig.colorPlayer = new Color(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), alphaSlider.getValue());
+                break;
+        }
+    }
+
     public void writeValuesAndClose() {
         mc.displayGuiScreen(null);
         CrosshairV2.guiOpen = false;
@@ -479,17 +507,7 @@ public class GuiMain {
         closeButton.setClicked(false);
         bar.setClicked(false);
         if (colorSelector.getSelectedItem() == 1) {
-            switch (currentColor) {
-                case 2:
-                    CrosshairConfig.color = new Color(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), alphaSlider.getValue());
-                    break;
-                case 1:
-                    CrosshairConfig.colorEntity = new Color(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), alphaSlider.getValue());
-                    break;
-                case 0:
-                    CrosshairConfig.colorPlayer = new Color(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), alphaSlider.getValue());
-                    break;
-            }
+            colorSaveSwitcher();
         } else {
             CrosshairConfig.color = new Color(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue(), alphaSlider.getValue());
         }

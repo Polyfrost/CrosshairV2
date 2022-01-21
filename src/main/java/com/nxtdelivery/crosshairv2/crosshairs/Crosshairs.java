@@ -3,13 +3,14 @@ package com.nxtdelivery.crosshairv2.crosshairs;
 import com.nxtdelivery.crosshairv2.CrosshairV2;
 import com.nxtdelivery.crosshairv2.config.CrosshairConfig;
 import com.nxtdelivery.crosshairv2.gui.GuiMain;
+import net.minecraft.block.BlockContainer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAmbientCreature;
-import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
@@ -57,7 +58,7 @@ public class Crosshairs {
         scale = CrosshairV2.gui.scaleSlider.getValue();
         GlStateManager.pushMatrix();
         GlStateManager.enableAlpha();
-        GlStateManager.scale(scale, scale, scale);
+        GlStateManager.scale(scale, scale, 1f);
         mc.getTextureManager().bindTexture(crossLoc);
         if (CrosshairConfig.colorType == 0) {
             GlStateManager.color(CrosshairV2.gui.redSlider.getValue(), CrosshairV2.gui.greenSlider.getValue(), CrosshairV2.gui.blueSlider.getValue(), CrosshairV2.gui.alphaSlider.getValue());
@@ -73,10 +74,12 @@ public class Crosshairs {
             GlStateManager.enableAlpha();
         }
         if (CrosshairConfig.crosshairType == 1) {
+            GlStateManager.translate(-scale, -scale, 1f);
             Gui.drawModalRectWithCustomSizedTexture(descaleNum(width / 2 - 7), descaleNum(height / 2 - 7), (number * 16), 0, 16, 16, 224, 16);
         }
         if (CrosshairConfig.crosshairType == 2) {
             mc.getTextureManager().bindTexture(CustomCrosshair.customLoc);
+            GlStateManager.translate(-scale, -scale, 1f);       // TODO something with this to make it stay centered
             Gui.drawModalRectWithCustomSizedTexture(descaleNum(width / 2 - 6), descaleNum(height / 2 - 6), 0, 0, 15, 15, 15, 15);
         }
         if (CrosshairConfig.colorType == 2) {
@@ -88,20 +91,22 @@ public class Crosshairs {
             int length = (int) CrosshairV2.gui.lengthSlider.getValue();
             int gap = (int) CrosshairV2.gui.gapSlider.getValue();
             int dot = (int) CrosshairV2.gui.dotSlider.getValue();
-            int thick = (int) CrosshairV2.gui.thickSlider.getValue();
+            int thick = (int) CrosshairV2.gui.thickSlider.getValue() - 1;
             int gap2 = (int) CrosshairV2.gui.secondGapSlider.getValue();
             int length2 = (int) CrosshairV2.gui.secondLengthSlider.getValue();
-            Gui.drawRect(width / 2 - length - gap, height / 2 - thick, width / 2 - gap, height / 2 + 1 + thick, color);         // LEFT
-            Gui.drawRect(width / 2 - thick, height / 2 - length - gap, width / 2 + 1 + thick, height / 2 - gap, color);         // TOP
-            Gui.drawRect(width / 2 + 1 + gap, height / 2 - thick, width / 2 + 1 + length + gap, height / 2 + 1 + thick, color);     // RIGHT
-            Gui.drawRect(width / 2 - thick, height / 2 + 1 + gap, width / 2 + 1 + thick, height / 2 + 1 + length + gap, color);     // BOTTOM
             if (dot != 0f) {
                 Gui.drawRect(width / 2 - dot + 1, height / 2 - dot + 1, width / 2 + dot, height / 2 + dot, color);    // MIDDLE
             }
-            Gui.drawRect(width / 2 - length2 - (int) (gap2 * percentDone), height / 2 - thick, width / 2 - (int) (gap2 * percentDone), height / 2 + 1 + thick, color);         // LEFT 2
-            Gui.drawRect(width / 2 - thick, height / 2 - length2 - (int) (gap2 * percentDone), width / 2 + 1 + thick, height / 2 - (int) (gap2 * percentDone), color);         // TOP 2
-            Gui.drawRect(width / 2 + 1 + (int) (gap2 * percentDone), height / 2 - thick, width / 2 + 1 + length2 + (int) (gap2 * percentDone), height / 2 + 1 + thick, color);     // RIGHT 2
-            Gui.drawRect(width / 2 - thick, height / 2 + 1 + (int) (gap2 * percentDone), width / 2 + 1 + thick, height / 2 + 1 + length2 + (int) (gap2 * percentDone), color);     // BOTTOM 2
+            if (thick != -1) {
+                Gui.drawRect(width / 2 - length - gap, height / 2 - thick, width / 2 - gap, height / 2 + 1 + thick, color);         // LEFT
+                Gui.drawRect(width / 2 - thick, height / 2 - length - gap, width / 2 + 1 + thick, height / 2 - gap, color);         // TOP
+                Gui.drawRect(width / 2 + 1 + gap, height / 2 - thick, width / 2 + 1 + length + gap, height / 2 + 1 + thick, color);     // RIGHT
+                Gui.drawRect(width / 2 - thick, height / 2 + 1 + gap, width / 2 + 1 + thick, height / 2 + 1 + length + gap, color);     // BOTTOM
+                Gui.drawRect(width / 2 - length2 - (int) (gap2 * percentDone), height / 2 - thick, width / 2 - (int) (gap2 * percentDone), height / 2 + 1 + thick, color);         // LEFT 2
+                Gui.drawRect(width / 2 - thick, height / 2 - length2 - (int) (gap2 * percentDone), width / 2 + 1 + thick, height / 2 - (int) (gap2 * percentDone), color);         // TOP 2
+                Gui.drawRect(width / 2 + 1 + (int) (gap2 * percentDone), height / 2 - thick, width / 2 + 1 + length2 + (int) (gap2 * percentDone), height / 2 + 1 + thick, color);     // RIGHT 2
+                Gui.drawRect(width / 2 - thick, height / 2 + 1 + (int) (gap2 * percentDone), width / 2 + 1 + thick, height / 2 + 1 + length2 + (int) (gap2 * percentDone), color);     // BOTTOM 2
+            }
             if (CrosshairConfig.dynamicMovement) {
                 if (mc.thePlayer.motionX != 0 || mc.thePlayer.motionZ != 0) {
                     percentDone = easeOut(percentDone, (float) (CrosshairV2.gui.multiplierSlider.getValue() * (Math.abs(mc.thePlayer.motionX) + Math.abs(mc.thePlayer.motionZ)) * 10));
@@ -146,18 +151,20 @@ public class Crosshairs {
             int length = (int) CrosshairV2.gui.lengthSlider.getValue();
             int gap = (int) CrosshairV2.gui.gapSlider.getValue();
             int dot = (int) CrosshairV2.gui.dotSlider.getValue();
-            int thick = (int) CrosshairV2.gui.thickSlider.getValue();
+            int thick = (int) CrosshairV2.gui.thickSlider.getValue() - 1;
             int gap2 = (int) CrosshairV2.gui.secondGapSlider.getValue();
             int length2 = (int) CrosshairV2.gui.secondLengthSlider.getValue();
-            Gui.drawRect(x + 7 - length - gap, y + 7 - thick, x + 7 - gap, y + 8 + thick, color);       // LEFT
-            Gui.drawRect(x + 7 - thick, y + 7 - length - gap, x + 8 + thick, y + 7 - gap, color);       // TOP
-            Gui.drawRect(x + 8 + gap, y + 7 - thick, x + 8 + length + gap, y + 8 + thick, color);       // RIGHT
-            Gui.drawRect(x + 7 - thick, y + 8 + gap, x + 8 + thick, y + 8 + length + gap, color);       // BOTTOM
             if (dot != 0f) Gui.drawRect(x + 8 - dot, y + 8 - dot, x + 7 + dot, y + 7 + dot, color);      // MIDDLE
-            Gui.drawRect(x + 7 - length2 - gap2, y + 7 - thick, x + 7 - gap2, y + 8 + thick, color);       // LEFT 2
-            Gui.drawRect(x + 7 - thick, y + 7 - length2 - gap2, x + 8 + thick, y + 7 - gap2, color);       // TOP 2
-            Gui.drawRect(x + 8 + gap2, y + 7 - thick, x + 8 + length2 + gap2, y + 8 + thick, color);       // RIGHT 2
-            Gui.drawRect(x + 7 - thick, y + 8 + gap2, x + 8 + thick, y + 8 + length2 + gap2, color);       // BOTTOM 2
+            if (thick != -1) {
+                Gui.drawRect(x + 7 - length - gap, y + 7 - thick, x + 7 - gap, y + 8 + thick, color);       // LEFT
+                Gui.drawRect(x + 7 - thick, y + 7 - length - gap, x + 8 + thick, y + 7 - gap, color);       // TOP
+                Gui.drawRect(x + 8 + gap, y + 7 - thick, x + 8 + length + gap, y + 8 + thick, color);       // RIGHT
+                Gui.drawRect(x + 7 - thick, y + 8 + gap, x + 8 + thick, y + 8 + length + gap, color);       // BOTTOM
+                Gui.drawRect(x + 7 - length2 - gap2, y + 7 - thick, x + 7 - gap2, y + 8 + thick, color);       // LEFT 2
+                Gui.drawRect(x + 7 - thick, y + 7 - length2 - gap2, x + 8 + thick, y + 7 - gap2, color);       // TOP 2
+                Gui.drawRect(x + 8 + gap2, y + 7 - thick, x + 8 + length2 + gap2, y + 8 + thick, color);       // RIGHT 2
+                Gui.drawRect(x + 7 - thick, y + 8 + gap2, x + 8 + thick, y + 8 + length2 + gap2, color);       // BOTTOM 2
+            }
         }
     }
 
@@ -169,12 +176,20 @@ public class Crosshairs {
             color = Color.HSBtoRGB(System.currentTimeMillis() % (int) (val) / val, 0.8f, 0.8f);
         }
         if (CrosshairConfig.colorType == 1) {
-            if (mc.pointedEntity instanceof EntityAnimal || mc.pointedEntity instanceof EntityMob || mc.pointedEntity instanceof EntityAmbientCreature) {
-                color = CrosshairConfig.colorEntity.getRGB();
-            } else if (mc.pointedEntity instanceof EntityPlayer) {
+            if (mc.pointedEntity instanceof EntityAmbientCreature || mc.pointedEntity instanceof EntityAgeable) {
+                color = CrosshairConfig.colorEntityFriend.getRGB();
+            } else if(mc.pointedEntity instanceof EntityMob) {
+                color = CrosshairConfig.colorEntityHostile.getRGB();
+            }
+            else if (mc.pointedEntity instanceof EntityPlayer) {
                 color = CrosshairConfig.colorPlayer.getRGB();
-            } else color = CrosshairConfig.color.getRGB();
+            }
+            else if(mc.theWorld.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() instanceof BlockContainer) {
+                color = CrosshairConfig.colorContainer.getRGB();
+            }
+            else color = CrosshairConfig.color.getRGB();
         }
+
         return color;
     }
 
