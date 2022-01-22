@@ -14,12 +14,12 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.lwjgl.input.Mouse;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.*;
 
 import static com.nxtdelivery.crosshairv2.crosshairs.Crosshairs.resolution;
 
@@ -38,6 +38,7 @@ public class GuiMain {
     private int selectedPreview = CrosshairConfig.preview;
     private static int crosshairType = 1;
     private static int currentColor = 4;
+    private int currentCustom;
     public static int selectedCrosshair = CrosshairConfig.crosshair;
     private static float goal = 1f;
     private final ResourceLocation barLoc = new ResourceLocation(CrosshairV2.ID, "textures/bar.png");
@@ -50,6 +51,7 @@ public class GuiMain {
     private final ResourceLocation btnLoc = new ResourceLocation(CrosshairV2.ID, "textures/button.png");
     private final ResourceLocation infoLoc = new ResourceLocation(CrosshairV2.ID, "textures/infobtn.png");
     private final ResourceLocation crosshairFrameLoc = new ResourceLocation(CrosshairV2.ID, "textures/crosshairframe.png");
+    private final ResourceLocation addLoc = new ResourceLocation(CrosshairV2.ID, "textures/add.png");
     private final Color baseColor = new Color(27, 27, 27, 255);
     private final Color baseColorDark = new Color(16, 16, 16, 255);
     private final Color baseColorTransparent = new Color(20, 20, 20, 200);
@@ -65,6 +67,8 @@ public class GuiMain {
     private final Button renderOnGuisBtn = new Button("Render in GUIs", true, true);
     private final Button renderInF5Btn = new Button("Render in F5 Mode", true, true);
     private final Button showModUpdates = new Button("Show Mod Updates", true, true);
+    private final Button deleteCrosshair = new Button(closeLoc, closeLoc, true, 2, 2, 9, 9);
+    private final Button addCrosshair = new Button(addLoc, addLoc, true, 2, 2, 9, 9);
     private final Button updateNow = new Button("Update Now", false, true);
     public final Button debugBtn = new Button("Debug Mode", true, true);
     public final Button chromaBtn = new Button("Chroma", true, true);
@@ -76,8 +80,9 @@ public class GuiMain {
     private final Button clearCrossBtn = new Button("Clear Crosshair", false, true);
     private final Button movementBtn = new Button("Dynamic Movement", true, true);
     private final Button aimBtn = new Button("Dynamic Aim", true, true);
-    private final Selector colorSelector = new Selector(new String[]{"Basic", "Dynamic", "Vanilla Blending"}, CrosshairConfig.colorType);
-    private final Selector dynamicColorSelector = new Selector(new String[]{"Player", "Monster", "Animal", "Container", "None/Other"}, 4);
+    private final Selector colorSelector = new Selector(Arrays.asList("Basic", "Dynamic", "Vanilla Blending"), CrosshairConfig.colorType);
+    private final Selector dynamicColorSelector = new Selector(Arrays.asList("Player", "Monster", "Animal", "Container", "None/Other"), 4);
+    public final Selector customCrosshairSelector;
     public final Slider redSlider = new Slider(0f, 1f, 50, CrosshairConfig.color.getRed() / 255f, false, new Color(200, 0, 0, 230).getRGB(), new Color(170, 0, 20, 255).getRGB());
     public final Slider blueSlider = new Slider(0f, 1f, 50, CrosshairConfig.color.getBlue() / 255f, false, new Color(0, 0, 200, 230).getRGB(), new Color(20, 0, 170, 255).getRGB());
     public final Slider greenSlider = new Slider(0f, 1f, 50, CrosshairConfig.color.getGreen() / 255f, false, new Color(0, 200, 0, 230).getRGB(), new Color(0, 170, 20, 255).getRGB());
@@ -103,7 +108,6 @@ public class GuiMain {
         for (int i = 0; i < 14; i++) {
             presetButtonList.add(new Button(crosshairBgLoc, crosshairBgLoc, true, 0, 0, 15, 15));
         }
-        CustomCrosshair.read(customButtonsList);
         colorSelector.setTooltip("Change the color of your crosshair.");
         closeButton.setTooltip("Close the GUI.", 100);
         renderOnGuisBtn.setTooltip("Render the crosshair when GUIs are open.", 200);
@@ -122,6 +126,8 @@ public class GuiMain {
         updateNow.setTooltip("Update now by clicking the button.", 150);
         debugBtn.setTooltip("Enable debugging information.", 150);
         modBtn.setTooltip("Enable/Disable the mod.", 150);
+        addCrosshair.setTooltip("Add a new Custom Crosshair preset.", 150);
+        deleteCrosshair.setTooltip("Delete the current Custom Crosshair.", 150);
         clearCrossBtn.setBackgroundColor(baseColorDark.getRGB());
         saveCrossBtn.setBackgroundColor(baseColorDark.getRGB());
         chromaBtn.setClickToggle(CrosshairConfig.chroma);
@@ -136,6 +142,10 @@ public class GuiMain {
         bar.enableClickPersistence(true);
         crosshairType = CrosshairConfig.crosshairType;
         currentColor = CrosshairConfig.colorType;
+        CustomCrosshair.setCustomCrossFile(CrosshairConfig.currentCustom);
+        currentCustom = CrosshairConfig.currentCustom;
+        CustomCrosshair.read(customButtonsList);
+        customCrosshairSelector = new Selector(Arrays.asList(Objects.requireNonNull(CrosshairV2.modDir.list(new WildcardFileFilter("customCrosshair*.png")))), CrosshairConfig.currentCustom);
         register();
     }
 
@@ -185,12 +195,12 @@ public class GuiMain {
             renderColorOpts();
             renderOtherOpts();
             bar.draw(left, top);
-            modBtn.draw(left + 17, top + 2);
             if (bar.isClicked()) {
                 left += Mouse.getDX() / resolution.getScaleFactor();
                 top -= Mouse.getDY() / resolution.getScaleFactor();
             }
             if (!modBtn.isToggled()) {
+                modBtn.draw(left + 17, top + 2);
                 closeButton.draw(left + 3, top + 3);
                 if (closeButton.isClicked()) retract = true;
                 renderInfoSystem();
@@ -204,9 +214,9 @@ public class GuiMain {
             fr.drawStringWithShadow("Custom", left + 317 + (142 / 2 - fr.getStringWidth("Custom") / 2), top + btnY + 3, -1);
             if (crosshairType != 2) renderPreview();
             Gui.drawRect(left + 12 + (153 * crosshairType), top + btnY, left + 12 + (153 * crosshairType) + 142, top + btnY + 15, -937747685);     // 27, 27, 27, 200
-            simpleBtn.draw(left + 12, top + btnY);
-            presetBtn.draw(left + 165, top + btnY);
             customBtn.draw(left + 318, top + btnY);
+            presetBtn.draw(left + 165, top + btnY);
+            simpleBtn.draw(left + 12, top + btnY);
             if (simpleBtn.isClicked()) {
                 crosshairType = 0;
                 presetBtn.setClickToggle(false);
@@ -289,17 +299,45 @@ public class GuiMain {
                 fr.drawSplitString("- You can click and drag to set multiple at once.", left + 250, top + 90, 250, -1);
                 fr.drawSplitString("- Change the color in Color Options (below).", left + 250, top + 100, 250, -1);
                 fr.drawSplitString("- Make sure to press 'Save Crosshair' when you are done.", left + 250, top + 110, 250, -1);
-                saveCrossBtn.draw(left + 250, top + 150);
-                clearCrossBtn.draw(left + 370, top + 150);
+                clearCrossBtn.draw(left + 350, top + 140);
+                saveCrossBtn.draw(left + 250, top + 140);
                 if (saveCrossBtn.isClicked()) {
                     CustomCrosshair.write(customButtonsList);
                 }
                 if (clearCrossBtn.isClicked()) {
                     CustomCrosshair.clear(customButtonsList);
                 }
+                /*      // TODO is a mess lmao
+                fr.drawStringWithShadow("Presets (Beta)", left + 246, top + 180, accentColorTransparent.getRGB());
+                customCrosshairSelector.draw(left + 250, top + 194);
+                deleteCrosshair.draw(left + 384, top + 195);
+                addCrosshair.draw(left + 372, top + 195);
+                if(deleteCrosshair.isToggled()) {
+                    deleteCrosshair.setClickToggle(false);
+                    CustomCrosshair.delete();
+                    CustomCrosshair.read(customButtonsList);
+                }
+                if(addCrosshair.isToggled()) {
+                    addCrosshair.setClickToggle(false);
+                    CustomCrosshair.add();
+                    CustomCrosshair.clear(customButtonsList);
+                }
+                if(customCrosshairSelector.getSelectedItem() != currentCustom) {
+                    CustomCrosshair.write(customButtonsList);
+                    currentCustom = customCrosshairSelector.getSelectedItem();
+                    CrosshairConfig.currentCustom = currentCustom;
+                    CustomCrosshair.setCustomCrossFile(customCrosshairSelector.getSelectedItem());
+                    for(Button btn : customButtonsList) {
+                        btn.setClickToggle(false);
+                    }
+                    CustomCrosshair.read(customButtonsList);
+                    CrosshairV2.config.markDirty();
+                    CrosshairV2.config.writeData();
+                }*/
             }
 
             renderInfoSystem();
+            modBtn.draw(left + 17, top + 2);
             closeButton.draw(left + 3, top + 3);            // this is at the bottom as we always want to make sure we can press it
             if (debugBtn.isToggled()) {
                 fr.drawString("F:" + ((float) (System.nanoTime() - startTime)) / 1000000f + "ms", left, currentBottom - 7, -1);     // TODO maybe do some more debug hud info??

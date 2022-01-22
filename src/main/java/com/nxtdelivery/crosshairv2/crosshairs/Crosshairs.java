@@ -75,7 +75,7 @@ public class Crosshairs {
         }
         if (CrosshairConfig.crosshairType == 1) {
             GlStateManager.translate(-scale, -scale, 1f);
-            Gui.drawModalRectWithCustomSizedTexture(descaleNum(width / 2 - 7), descaleNum(height / 2 - 7), (number * 16), 0, 16, 16, 224, 16);
+            Gui.drawModalRectWithCustomSizedTexture(descaleNum(width / 2 - 6), descaleNum(height / 2 - 6), (number * 16), 0, 16, 16, 224, 16);
         }
         if (CrosshairConfig.crosshairType == 2) {
             mc.getTextureManager().bindTexture(CustomCrosshair.customLoc);
@@ -178,16 +178,15 @@ public class Crosshairs {
         if (CrosshairConfig.colorType == 1) {
             if (mc.pointedEntity instanceof EntityAmbientCreature || mc.pointedEntity instanceof EntityAgeable) {
                 color = CrosshairConfig.colorEntityFriend.getRGB();
-            } else if(mc.pointedEntity instanceof EntityMob) {
+            } else if (mc.pointedEntity instanceof EntityMob) {
                 color = CrosshairConfig.colorEntityHostile.getRGB();
-            }
-            else if (mc.pointedEntity instanceof EntityPlayer) {
+            } else if (mc.pointedEntity instanceof EntityPlayer) {
                 color = CrosshairConfig.colorPlayer.getRGB();
-            }
-            else if(mc.theWorld.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() instanceof BlockContainer) {
-                color = CrosshairConfig.colorContainer.getRGB();
-            }
-            else color = CrosshairConfig.color.getRGB();
+            } else if (mc.theWorld != null) {
+                if (mc.theWorld.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() instanceof BlockContainer) {
+                    color = CrosshairConfig.colorContainer.getRGB();
+                }
+            } else color = CrosshairConfig.color.getRGB();
         }
 
         return color;

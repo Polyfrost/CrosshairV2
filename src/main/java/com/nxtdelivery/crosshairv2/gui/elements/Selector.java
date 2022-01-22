@@ -20,8 +20,8 @@ public class Selector {
     private float percentComplete = 0f;
     private final FontRenderer fr = mc.fontRendererObj;
     private final int wrapWidth;
-    private final String[] options;
-    private final int size;
+    private final ArrayList<String> options;
+    private int size;
     private int selectedItem;
     private boolean retract = false;
 
@@ -31,9 +31,9 @@ public class Selector {
      * @param options options as a String[] for the selector menu
      * @param def     default option to show (0-indexed)
      */
-    public Selector(String[] options, int def) {
+    public Selector(List<String> options, int def) {
         ResourceLocation arrowLoc = new ResourceLocation(CrosshairV2.ID, "textures/arrowsmall.png");
-        this.options = options;
+        this.options = new ArrayList<>(options);
         int i = 0;
         for (String name : options) {
             buttonList.add(new Button(name, false, true));
@@ -41,9 +41,9 @@ public class Selector {
             i = Math.max(i, k);
         }
         wrapWidth = i;
-        size = options.length;
+        size = options.size();
         selectedItem = def;
-        main = new Button(options[def], arrowLoc, arrowLoc, false, 1, 2, 7, 7);
+        main = new Button(options.get(def), arrowLoc, arrowLoc, false, 1, 2, 7, 7);
         main.doClickEffects(false);
     }
 
@@ -66,7 +66,7 @@ public class Selector {
                 btn.draw(x, y + (i * 13) + 11);
                 if (btn.isClicked()) {
                     selectedItem = i;
-                    main.setText(options[i]);
+                    main.setText(options.get(i));
                     main.setClickToggle(false);
                     btn.setClicked(false);
                     retract = true;
@@ -94,6 +94,7 @@ public class Selector {
      * @return the size of the list
      */
     public int getSize() {
+        size = buttonList.size();
         return size;
     }
 
@@ -148,4 +149,74 @@ public class Selector {
         main.setTooltip(tooltip, fr.getStringWidth(tooltip));
     }
 
+    /**
+     * Set the option at an index.
+     *
+     * @param index index to set the value at
+     * @param value value to set
+     */
+    public void setOption(int index, String value) {
+        options.set(index, value);
+    }
+
+    /**
+     * Add an option to the end of the list.
+     *
+     * @param optionName option name
+     */
+    public void addOption(String optionName) {
+        options.add(optionName);
+        buttonList.add(new Button(optionName, false, true));
+        size = buttonList.size();
+        System.out.println(size);
+    }
+
+    /**
+     * Set the currently selected item.
+     *
+     * @param index index of the item to select
+     */
+    public void setSelectedItem(int index) {
+        size = buttonList.size();
+        selectedItem = index;
+        try {
+            main.setText(options.get(index - 1));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        main.setClickToggle(false);
+        retract = true;
+    }
+
+    /**
+     * Get the index of a Selector item from its name.
+     *
+     * @param name name to search
+     * @return the index of that item, or -1 if fails.
+     */
+    public int getIndexFromName(String name) {
+        for (Button btn : buttonList) {
+            if (btn.getText().equals(name)) {
+                return buttonList.indexOf(btn);
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Remove the item at the specified index.
+     *
+     * @param index index of the item to remove
+     */
+    public void remove(int index) {
+        options.remove(index);
+        size = buttonList.size();
+        try {
+            buttonList.remove(index - 1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        size = buttonList.size();
+        setSelectedItem(0);
+    }
 }

@@ -382,6 +382,15 @@ public class Button {
     }
 
     /**
+     * Get the text on this Button.
+     *
+     * @return the button's text
+     */
+    public String getText() {
+        return this.text;
+    }
+
+    /**
      * Change the text currently displayed on the button.
      *
      * @param text String to display

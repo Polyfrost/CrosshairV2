@@ -183,6 +183,13 @@ public class CrosshairConfig extends Vigilant {
     )
     public static Color colorPlayer = new Color(0f, 1f, 0f, 1f);
 
+    @Property(
+            name = "currentCustom", category = "h",
+            type = PropertyType.NUMBER,
+            hidden = true
+    )
+    public static int currentCustom = 0;
+
 
     @Property(
             type = PropertyType.SWITCH,
