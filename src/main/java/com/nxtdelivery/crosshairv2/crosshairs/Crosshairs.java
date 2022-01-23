@@ -3,10 +3,11 @@ package com.nxtdelivery.crosshairv2.crosshairs;
 import com.nxtdelivery.crosshairv2.CrosshairV2;
 import com.nxtdelivery.crosshairv2.config.CrosshairConfig;
 import com.nxtdelivery.crosshairv2.gui.GuiMain;
+import gg.essential.universal.UResolution;
 import net.minecraft.block.BlockContainer;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityAgeable;
 import net.minecraft.entity.monster.EntityMob;
@@ -14,6 +15,7 @@ import net.minecraft.entity.passive.EntityAmbientCreature;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
@@ -23,22 +25,10 @@ import java.awt.*;
 public class Crosshairs {
     public static final ResourceLocation crossLoc = new ResourceLocation(CrosshairV2.ID, "textures/crosshairs.png");
     public static final Minecraft mc = Minecraft.getMinecraft();
-    public static ScaledResolution resolution;
     private static float scale = 1f;
     private static float percentDone = 1f;
-    public static int width;
-    public static int height;
-
-    public static void updateResolution() {
-        resolution = new ScaledResolution(mc);
-        width = resolution.getScaledWidth();
-        height = resolution.getScaledHeight();
-    }
 
     public static void render() {
-        resolution = new ScaledResolution(mc);
-        width = resolution.getScaledWidth();
-        height = resolution.getScaledHeight();
         if (CrosshairConfig.enabled) {
             renderCrosshair(GuiMain.selectedCrosshair);
         } else renderVanilla();
@@ -49,7 +39,7 @@ public class Crosshairs {
         GlStateManager.enableBlend();
         GlStateManager.tryBlendFuncSeparate(GL11.GL_ONE_MINUS_DST_COLOR, GL11.GL_ONE_MINUS_SRC_COLOR, 1, 0);
         GlStateManager.enableAlpha();
-        mc.ingameGUI.drawTexturedModalRect(width / 2 - 7, height / 2 - 7, 0, 0, 16, 16);
+        mc.ingameGUI.drawTexturedModalRect(UResolution.getScaledWidth() / 2 - 7, UResolution.getScaledHeight() / 2 - 7, 0, 0, 16, 16);
         GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
         GlStateManager.disableBlend();
     }
@@ -75,12 +65,12 @@ public class Crosshairs {
         }
         if (CrosshairConfig.crosshairType == 1) {
             GlStateManager.translate(-scale, -scale, 1f);
-            Gui.drawModalRectWithCustomSizedTexture(descaleNum(width / 2 - 6), descaleNum(height / 2 - 6), (number * 16), 0, 16, 16, 224, 16);
+            Gui.drawModalRectWithCustomSizedTexture(descaleNum(UResolution.getScaledWidth() / 2 - 6), descaleNum(UResolution.getScaledHeight() / 2 - 6), (number * 16), 0, 16, 16, 224, 16);
         }
         if (CrosshairConfig.crosshairType == 2) {
             mc.getTextureManager().bindTexture(CustomCrosshair.customLoc);
             GlStateManager.translate(-scale, -scale, 1f);       // TODO something with this to make it stay centered
-            Gui.drawModalRectWithCustomSizedTexture(descaleNum(width / 2 - 6), descaleNum(height / 2 - 6), 0, 0, 15, 15, 15, 15);
+            Gui.drawModalRectWithCustomSizedTexture(descaleNum(UResolution.getScaledWidth() / 2 - 6), descaleNum(UResolution.getScaledHeight() / 2 - 6), 0, 0, 15, 15, 15, 15);
         }
         if (CrosshairConfig.colorType == 2) {
             GlStateManager.tryBlendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, 1, 0);
@@ -95,17 +85,17 @@ public class Crosshairs {
             int gap2 = (int) CrosshairV2.gui.secondGapSlider.getValue();
             int length2 = (int) CrosshairV2.gui.secondLengthSlider.getValue();
             if (dot != 0f) {
-                Gui.drawRect(width / 2 - dot + 1, height / 2 - dot + 1, width / 2 + dot, height / 2 + dot, color);    // MIDDLE
+                Gui.drawRect(UResolution.getScaledWidth() / 2 - dot + 1, UResolution.getScaledHeight() / 2 - dot + 1, UResolution.getScaledWidth() / 2 + dot, UResolution.getScaledHeight() / 2 + dot, color);    // MIDDLE
             }
             if (thick != -1) {
-                Gui.drawRect(width / 2 - length - gap, height / 2 - thick, width / 2 - gap, height / 2 + 1 + thick, color);         // LEFT
-                Gui.drawRect(width / 2 - thick, height / 2 - length - gap, width / 2 + 1 + thick, height / 2 - gap, color);         // TOP
-                Gui.drawRect(width / 2 + 1 + gap, height / 2 - thick, width / 2 + 1 + length + gap, height / 2 + 1 + thick, color);     // RIGHT
-                Gui.drawRect(width / 2 - thick, height / 2 + 1 + gap, width / 2 + 1 + thick, height / 2 + 1 + length + gap, color);     // BOTTOM
-                Gui.drawRect(width / 2 - length2 - (int) (gap2 * percentDone), height / 2 - thick, width / 2 - (int) (gap2 * percentDone), height / 2 + 1 + thick, color);         // LEFT 2
-                Gui.drawRect(width / 2 - thick, height / 2 - length2 - (int) (gap2 * percentDone), width / 2 + 1 + thick, height / 2 - (int) (gap2 * percentDone), color);         // TOP 2
-                Gui.drawRect(width / 2 + 1 + (int) (gap2 * percentDone), height / 2 - thick, width / 2 + 1 + length2 + (int) (gap2 * percentDone), height / 2 + 1 + thick, color);     // RIGHT 2
-                Gui.drawRect(width / 2 - thick, height / 2 + 1 + (int) (gap2 * percentDone), width / 2 + 1 + thick, height / 2 + 1 + length2 + (int) (gap2 * percentDone), color);     // BOTTOM 2
+                Gui.drawRect(UResolution.getScaledWidth() / 2 - length - gap, UResolution.getScaledHeight() / 2 - thick, UResolution.getScaledWidth() / 2 - gap, UResolution.getScaledHeight() / 2 + 1 + thick, color);         // LEFT
+                Gui.drawRect(UResolution.getScaledWidth() / 2 - thick, UResolution.getScaledHeight() / 2 - length - gap, UResolution.getScaledWidth() / 2 + 1 + thick, UResolution.getScaledHeight() / 2 - gap, color);         // TOP
+                Gui.drawRect(UResolution.getScaledWidth() / 2 + 1 + gap, UResolution.getScaledHeight() / 2 - thick, UResolution.getScaledWidth() / 2 + 1 + length + gap, UResolution.getScaledHeight() / 2 + 1 + thick, color);     // RIGHT
+                Gui.drawRect(UResolution.getScaledWidth() / 2 - thick, UResolution.getScaledHeight() / 2 + 1 + gap, UResolution.getScaledWidth() / 2 + 1 + thick, UResolution.getScaledHeight() / 2 + 1 + length + gap, color);     // BOTTOM
+                Gui.drawRect(UResolution.getScaledWidth() / 2 - length2 - (int) (gap2 * percentDone), UResolution.getScaledHeight() / 2 - thick, UResolution.getScaledWidth() / 2 - (int) (gap2 * percentDone), UResolution.getScaledHeight() / 2 + 1 + thick, color);         // LEFT 2
+                Gui.drawRect(UResolution.getScaledWidth() / 2 - thick, UResolution.getScaledHeight() / 2 - length2 - (int) (gap2 * percentDone), UResolution.getScaledWidth() / 2 + 1 + thick, UResolution.getScaledHeight() / 2 - (int) (gap2 * percentDone), color);         // TOP 2
+                Gui.drawRect(UResolution.getScaledWidth() / 2 + 1 + (int) (gap2 * percentDone), UResolution.getScaledHeight() / 2 - thick, UResolution.getScaledWidth() / 2 + 1 + length2 + (int) (gap2 * percentDone), UResolution.getScaledHeight() / 2 + 1 + thick, color);     // RIGHT 2
+                Gui.drawRect(UResolution.getScaledWidth() / 2 - thick, UResolution.getScaledHeight() / 2 + 1 + (int) (gap2 * percentDone), UResolution.getScaledWidth() / 2 + 1 + thick, UResolution.getScaledHeight() / 2 + 1 + length2 + (int) (gap2 * percentDone), color);     // BOTTOM 2
             }
             if (CrosshairConfig.dynamicMovement) {
                 if (mc.thePlayer.motionX != 0 || mc.thePlayer.motionZ != 0) {
@@ -183,8 +173,12 @@ public class Crosshairs {
             } else if (mc.pointedEntity instanceof EntityPlayer) {
                 color = CrosshairConfig.colorPlayer.getRGB();
             } else if (mc.theWorld != null) {
-                if (mc.theWorld.getBlockState(mc.objectMouseOver.getBlockPos()).getBlock() instanceof BlockContainer) {
-                    color = CrosshairConfig.colorContainer.getRGB();
+                BlockPos blockPos = mc.objectMouseOver.getBlockPos();
+                if (blockPos != null) {
+                    IBlockState state = mc.theWorld.getBlockState(blockPos);
+                    if (state != null && state.getBlock() instanceof BlockContainer) {
+                        color = CrosshairConfig.colorContainer.getRGB();
+                    }
                 }
             } else color = CrosshairConfig.color.getRGB();
         }

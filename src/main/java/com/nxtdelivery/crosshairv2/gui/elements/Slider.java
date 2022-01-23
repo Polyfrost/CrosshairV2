@@ -1,5 +1,6 @@
 package com.nxtdelivery.crosshairv2.gui.elements;
 
+import gg.essential.universal.UResolution;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
@@ -7,21 +8,19 @@ import org.lwjgl.input.Mouse;
 
 import java.awt.*;
 
-import static com.nxtdelivery.crosshairv2.crosshairs.Crosshairs.resolution;
-
 @SuppressWarnings({"IntegerDivisionInFloatingPointContext", "unused"})
 public class Slider {
     private final FontRenderer fr = Minecraft.getMinecraft().fontRendererObj;
     private final float min;
     private final float max;
+    private final int length;
+    private final int baseColor = new Color(16, 16, 16, 200).getRGB();
+    private final Button main;
     private int color;
     private int colorHead;
     private boolean showNums;
-    private final int length;
     private boolean showCurrent = false;
     private int progress;
-    private final int baseColor = new Color(16, 16, 16, 200).getRGB();
-    private final Button main;
     private float current;
     private boolean hovered;
 
@@ -58,8 +57,8 @@ public class Slider {
      */
     public void draw(int x, int y) {
         Gui.drawRect(x, y, x + length, y + 7, baseColor);
-        int mouseX = Mouse.getX() / resolution.getScaleFactor();
-        int mouseY = Math.abs((Mouse.getY() / resolution.getScaleFactor()) - resolution.getScaledHeight());
+        int mouseX = (int) (Mouse.getX() / UResolution.getScaleFactor());
+        int mouseY = (int) Math.abs((Mouse.getY() / UResolution.getScaleFactor()) - UResolution.getScaledHeight());
         hovered = mouseX > x && mouseX < x + length && mouseY > y && mouseY < y + 7;
 
         Gui.drawRect(x + 1, y + 1, x + progress, y + 6, color);

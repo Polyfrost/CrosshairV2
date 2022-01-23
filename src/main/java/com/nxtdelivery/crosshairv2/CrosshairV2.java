@@ -18,12 +18,11 @@ import java.io.File;
 @Mod(modid = CrosshairV2.ID, name = CrosshairV2.NAME, version = CrosshairV2.VER)
 public class CrosshairV2 {
     public static final String NAME = "@NAME@", VER = "@VER@", ID = "@ID@";
-    public static File jarFile;
     public static final File modDir = new File(new File(Minecraft.getMinecraft().mcDataDir, "W-OVERFLOW"), NAME);
+    public static File jarFile;
     public static CrosshairConfig config;
-    private final Minecraft mc = Minecraft.getMinecraft();
     public static GuiMain gui;
-    public static boolean guiOpen = false;
+    private final Minecraft mc = Minecraft.getMinecraft();
 
     @Mod.EventHandler
     protected void onFMLPreInitialization(FMLPreInitializationEvent event) {
@@ -48,8 +47,12 @@ public class CrosshairV2 {
                 event.setCanceled(true);
                 return;
             }
-            Crosshairs.render();
-            event.setCanceled(true);
+            try {
+                Crosshairs.render();
+                event.setCanceled(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

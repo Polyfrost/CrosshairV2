@@ -14,7 +14,6 @@ public class CrosshairCommand extends Command {
 
     @DefaultHandler
     public void handle() {
-        CrosshairV2.guiOpen = true;
         EssentialAPI.getGuiUtil().openScreen(new BackgroundScreen());
     }
 }

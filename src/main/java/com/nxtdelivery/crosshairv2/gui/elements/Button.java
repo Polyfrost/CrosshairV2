@@ -1,18 +1,17 @@
 package com.nxtdelivery.crosshairv2.gui.elements;
 
+import gg.essential.universal.UResolution;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiVideoSettings;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Mouse;
 
 import java.awt.*;
-
-import static com.nxtdelivery.crosshairv2.crosshairs.Crosshairs.resolution;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Button API with support for custom textures, and checkbox-style GUI elements with text.
@@ -24,8 +23,13 @@ import static com.nxtdelivery.crosshairv2.crosshairs.Crosshairs.resolution;
 public class Button {
     private static final Minecraft mc = Minecraft.getMinecraft();
     private static final FontRenderer fr = mc.fontRendererObj;
-    private String text;
     private final boolean hoverFx;
+    private final int baseColor = new Color(16, 16, 16, 255).getRGB();
+    private final int selectedColor = new Color(0, 158, 72, 255).getRGB();
+    private final int buttonColor = new Color(16, 16, 16, 170).getRGB();
+    private final int tooltipColor = Color.BLACK.getRGB();
+    float percentComplete = 0f;
+    private String text;
     private boolean clickFx = true;
     private int padY = 2;
     private int padX = 1;
@@ -33,7 +37,7 @@ public class Button {
     private int texY;
     private int hitBoxX = 0;
     private int hitBoxY = 0;
-    private String tooltip;
+    private List<String> tooltip;
     private int target = 110;
     private int wrapWidth;
     private boolean checkbox = false;
@@ -48,12 +52,8 @@ public class Button {
     private boolean retract = false;
     private float animSpeed = 15f;
     private ResourceLocation btnOff, btnOn;
-    float percentComplete = 0f;
     private int buttonLeft, buttonRight, buttonBottom, buttonTop;
     private int bgColor = new Color(0, 0, 0, 0).getRGB();
-    private final int baseColor = new Color(16, 16, 16, 255).getRGB();
-    private final int selectedColor = new Color(0, 158, 72, 255).getRGB();
-    private final int buttonColor = new Color(16, 16, 16, 170).getRGB();
 
     /**
      * Create a new button with a string and checkbox.
@@ -125,12 +125,6 @@ public class Button {
      * @param bottom bottom of bounding box
      */
     public void draw(int left, int top, int right, int bottom) {
-        if (resolution == null) {
-            resolution = new ScaledResolution(mc);
-        }
-        if (mc.currentScreen instanceof GuiVideoSettings) {
-            resolution = new ScaledResolution(mc);
-        }
         if (!textured) {
             //if (fr.getStringWidth(text) > right - left) right = fr.getStringWidth(text) + 3;
             Gui.drawRect(left - padX, top - padY, right + padX, bottom + padY, bgColor);
@@ -166,12 +160,6 @@ public class Button {
      * @param scaledY scaled Y of the button
      */
     public void drawScaled(int x, int y, int scaledX, int scaledY) {
-        if (resolution == null) {
-            resolution = new ScaledResolution(mc);
-        }
-        if (mc.currentScreen instanceof GuiVideoSettings) {
-            resolution = new ScaledResolution(mc);
-        }
         if (textured) {
             if (!toggled || btnOff.equals(btnOn)) {
                 GlStateManager.color(1f, 1f, 1f, 1f);
@@ -214,8 +202,8 @@ public class Button {
      * Update the buttons click and hover status, along with all other states.
      */
     public void update() {
-        int mouseX = Mouse.getX() / resolution.getScaleFactor();
-        int mouseY = Math.abs((Mouse.getY() / resolution.getScaleFactor()) - resolution.getScaledHeight());
+        int mouseX = (int) (Mouse.getX() / UResolution.getScaleFactor());
+        int mouseY = (int) Math.abs((Mouse.getY() / UResolution.getScaleFactor()) - UResolution.getScaledHeight());
         hovered = mouseX > buttonLeft - hitBoxX && mouseY > buttonTop - hitBoxY && mouseX < buttonRight + hitBoxX && mouseY < buttonBottom + hitBoxY;
         if (hovered) {
             if (Mouse.isButtonDown(0) && !clicked) {            // convert into just one poll on press
@@ -248,9 +236,7 @@ public class Button {
             Gui.drawModalRectWithCustomSizedTexture(buttonLeft + padX, buttonTop + padY, 0, 0, texX, texY, texX, texY);
         }
         if (percentComplete == 1f && tooltip != null && !clicked && hoverFx) {
-            if (fr.splitStringWidth(tooltip, wrapWidth) == 9) wrapWidth = fr.getStringWidth(tooltip) + 3;
-            Gui.drawRect(mouseX, mouseY, mouseX + wrapWidth + 2, mouseY + fr.splitStringWidth(tooltip, wrapWidth), buttonColor);
-            fr.drawSplitString(tooltip, mouseX + 3, mouseY + 2, wrapWidth, -1);
+            Tooltips.drawTooltip(tooltip, mouseX, mouseY, UResolution.getScaledWidth(), UResolution.getScaledHeight(), wrapWidth, tooltipColor);
         }
     }
 
@@ -282,8 +268,13 @@ public class Button {
      * @param newTooltip tooltip to set
      * @param wrapWidth  wrap width for the tooltip
      */
-    public void setTooltip(String newTooltip, int wrapWidth) {
+    public void setTooltip(List<String> newTooltip, int wrapWidth) {
         this.tooltip = newTooltip;
+        this.wrapWidth = wrapWidth;
+    }
+
+    public void setTooltip(String newTooltip, int wrapWidth) {
+        this.tooltip = Collections.singletonList(newTooltip);
         this.wrapWidth = wrapWidth;
     }
 
@@ -292,7 +283,7 @@ public class Button {
      *
      * @return String tooltip
      */
-    public String getTooltip() {
+    public List<String> getTooltip() {
         return tooltip;
     }
 
@@ -348,6 +339,15 @@ public class Button {
      */
     public boolean isRightToggled() {
         return rightToggled;
+    }
+
+    /**
+     * set the current right click state of the button.
+     *
+     * @param state the state to set to
+     */
+    public void setRightToggled(boolean state) {
+        this.rightToggled = state;
     }
 
     /**
@@ -418,15 +418,6 @@ public class Button {
     }
 
     /**
-     * set the current right click state of the button.
-     *
-     * @param state the state to set to
-     */
-    public void setRightToggled(boolean state) {
-        this.rightToggled = state;
-    }
-
-    /**
      * enable/disable click effects, regardless of weather or not hover effects is enabled.
      *
      * @param state the state to set to
@@ -452,14 +443,5 @@ public class Button {
      */
     public void enableClickPersistence(boolean state) {
         this.clickPersist = state;
-    }
-
-    /**
-     * Static method to update the Button's class ScaledResolution, to be called to update the bounding boxes when rendering buttons.
-     *
-     * @implNote use: if(mc.currentScreen instanceof GuiVideoSettings) Button.updateResolution();
-     */
-    public static void updateResolution() {
-        resolution = new ScaledResolution(mc);
     }
 }

@@ -13,207 +13,95 @@ import java.io.File;
 
 public class CrosshairConfig extends Vigilant {
 
-    @Property(
-            name = "enabled", category = "h",
-            type = PropertyType.SWITCH,
-            hidden = true
-    )
+    @Property(name = "enabled", category = "h", type = PropertyType.SWITCH, hidden = true)
     public static boolean enabled = true;
 
-    @Property(
-            name = "preview", category = "h",
-            type = PropertyType.NUMBER,
-            hidden = true
-    )
+    @Property(name = "preview", category = "h", type = PropertyType.NUMBER, hidden = true)
     public static int preview = 2;
 
-    @Property(
-            name = "crosshair", category = "h",
-            type = PropertyType.NUMBER,
-            hidden = true
-    )
+    @Property(name = "crosshair", category = "h", type = PropertyType.NUMBER, hidden = true)
     public static int crosshair = 1;
 
-    @Property(
-            name = "colorType", category = "h",
-            type = PropertyType.NUMBER,
-            hidden = true
-    )
+    @Property(name = "colorType", category = "h", type = PropertyType.NUMBER, hidden = true)
     public static int colorType = 2;
 
-    @Property(
-            name = "scale", category = "h",
-            type = PropertyType.DECIMAL_SLIDER,
-            hidden = true
-    )
+    @Property(name = "scale", category = "h", type = PropertyType.DECIMAL_SLIDER, hidden = true)
     public static float scale = 1f;
 
-    @Property(
-            name = "crosshairType", category = "h",
-            type = PropertyType.NUMBER,
-            hidden = true
-    )
+    @Property(name = "crosshairType", category = "h", type = PropertyType.NUMBER, hidden = true)
     public static int crosshairType = 1;
 
 
-    @Property(
-            name = "thickness", category = "h",
-            type = PropertyType.NUMBER,
-            hidden = true
-    )
+    @Property(name = "thickness", category = "h", type = PropertyType.NUMBER, hidden = true)
     public static int thickness = 0;
 
-    @Property(
-            name = "length", category = "h",
-            type = PropertyType.NUMBER,
-            hidden = true
-    )
+    @Property(name = "length", category = "h", type = PropertyType.NUMBER, hidden = true)
     public static int lineLength = 4;
 
-    @Property(
-            name = "length2", category = "h",
-            type = PropertyType.NUMBER,
-            hidden = true
-    )
+    @Property(name = "length2", category = "h", type = PropertyType.NUMBER, hidden = true)
     public static int secondLineLength = 2;
 
-    @Property(
-            name = "gap2", category = "h",
-            type = PropertyType.NUMBER,
-            hidden = true
-    )
+    @Property(name = "gap2", category = "h", type = PropertyType.NUMBER, hidden = true)
     public static int secondGap = 2;
 
-    @Property(
-            name = "multiplier", category = "h",
-            type = PropertyType.DECIMAL_SLIDER,
-            hidden = true
-    )
+    @Property(name = "multiplier", category = "h", type = PropertyType.DECIMAL_SLIDER, hidden = true)
     public static float multiplier = 1f;
 
-    @Property(
-            name = "gap", category = "h",
-            type = PropertyType.NUMBER,
-            hidden = true
-    )
+    @Property(name = "gap", category = "h", type = PropertyType.NUMBER, hidden = true)
     public static int gap = 1;
-    @Property(
-            name = "dotSize", category = "h",
-            type = PropertyType.NUMBER,
-            hidden = true
-    )
+    @Property(name = "dotSize", category = "h", type = PropertyType.NUMBER, hidden = true)
     public static int dotSize = 1;
 
-    @Property(
-            name = "chromaSpd", category = "h",
-            type = PropertyType.DECIMAL_SLIDER,
-            hidden = true
-    )
+    @Property(name = "chromaSpd", category = "h", type = PropertyType.DECIMAL_SLIDER, hidden = true)
     public static float chromaSpeed = 30f;
 
 
-    @Property(
-            name = "movement", category = "h",
-            type = PropertyType.SWITCH,
-            hidden = true
-    )
+    @Property(name = "movement", category = "h", type = PropertyType.SWITCH, hidden = true)
     public static boolean dynamicMovement = false;
 
-    @Property(
-            name = "aiming", category = "h",
-            type = PropertyType.SWITCH,
-            hidden = true
-    )
+    @Property(name = "aiming", category = "h", type = PropertyType.SWITCH, hidden = true)
     public static boolean dynamicAiming = true;
 
-    @Property(
-            name = "renderInF5", category = "h",
-            type = PropertyType.SWITCH,
-            hidden = true
-    )
+    @Property(name = "renderInF5", category = "h", type = PropertyType.SWITCH, hidden = true)
     public static boolean renderInF5 = true;
 
-    @Property(
-            name = "renderInGUIs", category = "h",
-            type = PropertyType.SWITCH,
-            hidden = true
-    )
+    @Property(name = "renderInGUIs", category = "h", type = PropertyType.SWITCH, hidden = true)
     public static boolean renderOnGuis = true;
 
-    @Property(
-            name = "chroma", category = "h",
-            type = PropertyType.SWITCH,
-            hidden = true
-    )
+    @Property(name = "chroma", category = "h", type = PropertyType.SWITCH, hidden = true)
     public static boolean chroma = false;
 
 
-    @Property(
-            type = PropertyType.COLOR,
-            name = "color", category = "h",
-            hidden = true
-    )
+    @Property(type = PropertyType.COLOR, name = "color", category = "h", hidden = true)
     public static Color color = new Color(1f, 1f, 1f, 1f);
 
-    @Property(
-            type = PropertyType.COLOR,
-            name = "colorEntityHostile", category = "h",
-            hidden = true
-    )
+    @Property(type = PropertyType.COLOR, name = "colorEntityHostile", category = "h", hidden = true)
     public static Color colorEntityHostile = new Color(1f, 0f, 0f, 1f);
 
-    @Property(
-            type = PropertyType.COLOR,
-            name = "colorEntityFriend", category = "h",
-            hidden = true
-    )
+    @Property(type = PropertyType.COLOR, name = "colorEntityFriend", category = "h", hidden = true)
     public static Color colorEntityFriend = new Color(1f, 0.5f, 0f, 1f);
 
-    @Property(
-            type = PropertyType.COLOR,
-            name = "colorContainer", category = "h",
-            hidden = true
-    )
+    @Property(type = PropertyType.COLOR, name = "colorContainer", category = "h", hidden = true)
     public static Color colorContainer = new Color(0f, 0f, 0.6f, 1f);
 
-    @Property(
-            type = PropertyType.COLOR,
-            name = "colorPlayer", category = "h",
-            hidden = true
-    )
+    @Property(type = PropertyType.COLOR, name = "colorPlayer", category = "h", hidden = true)
     public static Color colorPlayer = new Color(0f, 1f, 0f, 1f);
 
-    @Property(
-            name = "currentCustom", category = "h",
-            type = PropertyType.NUMBER,
-            hidden = true
-    )
+    @Property(name = "currentCustom", category = "h", type = PropertyType.NUMBER, hidden = true)
     public static int currentCustom = 0;
 
-
-    @Property(
-            type = PropertyType.SWITCH,
-            name = "Show Update Notification",
-            description = "Show a notification when you start Minecraft informing you of new updates.",
-            category = "Updater"
-    )
+    @Property(type = PropertyType.SWITCH, name = "Show Update Notification", description = "Show a notification when you start Minecraft informing you of new updates.", category = "Updater")
     public static boolean showUpdate = true;
-
-    @Property(
-            type = PropertyType.BUTTON,
-            name = "Update Now",
-            description = "Update by clicking the button.",
-            category = "Updater"
-    )
-    public void update() {
-        if (Updater.shouldUpdate) EssentialAPI.getGuiUtil()
-                .openScreen(new DownloadGui());
-        else EssentialAPI.getNotifications()
-                .push(CrosshairV2.NAME, "No update had been detected at startup, and thus the update GUI has not been shown.");
-    }
 
     public CrosshairConfig() {
         super(new File(CrosshairV2.modDir, CrosshairV2.ID + ".toml"), CrosshairV2.NAME);
         initialize();
+    }
+
+    @Property(type = PropertyType.BUTTON, name = "Update Now", description = "Update by clicking the button.", category = "Updater")
+    public void update() {
+        if (Updater.shouldUpdate) EssentialAPI.getGuiUtil().openScreen(new DownloadGui());
+        else
+            EssentialAPI.getNotifications().push(CrosshairV2.NAME, "No update had been detected at startup, and thus the update GUI has not been shown.");
     }
 }

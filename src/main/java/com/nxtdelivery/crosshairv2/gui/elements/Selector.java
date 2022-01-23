@@ -17,10 +17,10 @@ public class Selector {
     private final Minecraft mc = Minecraft.getMinecraft();
     private final int bgColor = new Color(16, 16, 16, 200).getRGB();
     private final Button main;
-    private float percentComplete = 0f;
     private final FontRenderer fr = mc.fontRendererObj;
     private final int wrapWidth;
     private final ArrayList<String> options;
+    private float percentComplete = 0f;
     private int size;
     private int selectedItem;
     private boolean retract = false;
@@ -108,6 +108,23 @@ public class Selector {
     }
 
     /**
+     * Set the currently selected item.
+     *
+     * @param index index of the item to select
+     */
+    public void setSelectedItem(int index) {
+        size = buttonList.size();
+        selectedItem = index;
+        try {
+            main.setText(options.get(index - 1));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        main.setClickToggle(false);
+        retract = true;
+    }
+
+    /**
      * Return the item at an index in the menu.
      *
      * @param index 0-indexed index of the wanted item
@@ -169,23 +186,6 @@ public class Selector {
         buttonList.add(new Button(optionName, false, true));
         size = buttonList.size();
         System.out.println(size);
-    }
-
-    /**
-     * Set the currently selected item.
-     *
-     * @param index index of the item to select
-     */
-    public void setSelectedItem(int index) {
-        size = buttonList.size();
-        selectedItem = index;
-        try {
-            main.setText(options.get(index - 1));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        main.setClickToggle(false);
-        retract = true;
     }
 
     /**
